@@ -1,0 +1,160 @@
+{
+  "name": "@brighthustle/adonisjs-whatsapp",
+  "version": "1.0.2",
+  "description": "Connect your WhatsApp Cloud API with AdonisJS",
+  "main": "build/providers/WhatsAppProvider.js",
+ "scripts": {
+    "mrm": "mrm --preset=@adonisjs/mrm-preset",
+    "pretest": "npm run lint",
+    "clean": "del-cli build",
+    "copyfiles": "copyfiles \"templates/**/*.txt\" \"instructions.md\" build",
+    "compile": "npm run lint && npm run clean && tsc && npm run copyfiles",
+    "build": "npm run compile",
+    "prepublishOnly": "npm run build",
+    "lint": "eslint . --ext=.ts",
+    "format": "prettier --write .",
+    "commit": "git-cz",
+    "release": "np --message=\"chore(release): %s\"",
+    "version": "npm run build",
+    "sync-labels": "github-label-sync --labels ./node_modules/@adonisjs/mrm-preset/gh-labels.json BrightHustle/adonisjs-whatsapp"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/Bright-Hustle/adonisjs-whatsapp.git"
+  },
+  "keywords": [
+    "whatsapp",
+    "cloud-api",
+    "whatsapp-api",
+    "whatsapp-cloud",
+    "whatsapp-cloud-api",
+    "whatsapp-business",
+    "whatsapp-business-api",
+    "adonis",
+    "adonisjs",
+    "adonisjs-whatsapp"
+  ],
+  "author": "Kumar Yash",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/Bright-Hustle/adonisjs-whatsapp/issues"
+  },
+  "homepage": "https://github.com/Bright-Hustle/adonisjs-whatsapp#readme",
+  "devDependencies": {
+    "@adonisjs/core": "^5.9.0",
+    "@adonisjs/mrm-preset": "^5.0.3",
+    "@adonisjs/require-ts": "^2.0.13",
+    "@adonisjs/sink": "^5.4.2",
+    "@types/mime-types": "^2.1.1",
+    "@types/node": "^20.5.0",
+    "commitizen": "^4.3.0",
+    "copyfiles": "^2.4.1",
+    "cz-conventional-changelog": "^3.3.0",
+    "del-cli": "^5.0.0",
+    "eslint": "^8.33.0",
+    "eslint-config-prettier": "^8.6.0",
+    "eslint-plugin-adonis": "^2.1.1",
+    "eslint-plugin-prettier": "^4.2.1",
+    "github-label-sync": "^2.2.0",
+    "husky": "^8.0.3",
+    "mrm": "^4.1.17",
+    "np": "^7.6.3",
+    "prettier": "^2.8.3",
+    "typescript": "^5.1.6"
+  },
+  "dependencies": {
+    "axios": "^1.3.2",
+    "mime-types": "^2.1.35"
+  },
+  "peerDependencies": {
+    "@adonisjs/core": "^5.9.0"
+  },
+  "mrmConfig": {
+    "core": false,
+    "license": "MIT",
+    "services": [],
+    "minNodeVersion": "16.13.1",
+    "probotApps": []
+  },
+  "types": "build/adonis-typings/index.d.ts",
+  "files": [
+    "build/adonis-typings",
+    "build/src",
+    "build/providers",
+    "build/templates",
+    "build/instructions.js",
+    "build/instructions.md"
+  ],
+  "eslintConfig": {
+    "extends": [
+      "plugin:adonis/typescriptPackage",
+      "prettier"
+    ],
+    "plugins": [
+      "prettier"
+    ],
+    "rules": {
+      "prettier/prettier": [
+        "error",
+        {
+          "endOfLine": "auto"
+        }
+      ]
+    }
+  },
+  "eslintIgnore": [
+    "build"
+  ],
+  "prettier": {
+    "trailingComma": "es5",
+    "semi": false,
+    "singleQuote": true,
+    "useTabs": false,
+    "quoteProps": "consistent",
+    "bracketSpacing": true,
+    "arrowParens": "always",
+    "printWidth": 100
+  },
+  "config": {
+    "commitizen": {
+      "path": "cz-conventional-changelog"
+    }
+  },
+  "np": {
+    "contents": ".",
+    "anyBranch": false
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "adonisjs": {
+    "instructionsMd": "./build/instructions.md",
+    "templates": {
+      "basePath": "./build/templates",
+      "config": [
+        {
+          "src": "config/whatsapp.txt",
+          "dest": "whatsapp"
+        }
+      ],
+      "start": [
+        {
+          "src": "start/whatsapp.txt",
+          "dest": "whatsapp"
+        }
+      ]
+    },
+    "env": {
+      "WABA_ID": "",
+      "WABA_TOKEN": "",
+      "WABA_VERIFY": ""
+    },
+    "preloads": [
+      "./start/whatsapp"
+    ],
+    "providers": [
+      "@brighthustle/adonisjs-whatsapp"
+    ],
+    "types": "@brighthustle/adonisjs-whatsapp"
+  }
+}
