@@ -1,9 +1,9 @@
 {
   "name": "@brighthustle/adonisjs-whatsapp",
-  "version": "1.0.2",
+  "version": "1.0.3",
   "description": "Connect your WhatsApp Cloud API with AdonisJS",
   "main": "build/providers/WhatsAppProvider.js",
- "scripts": {
+  "scripts": {
     "mrm": "mrm --preset=@adonisjs/mrm-preset",
     "pretest": "npm run lint",
     "clean": "del-cli build",
