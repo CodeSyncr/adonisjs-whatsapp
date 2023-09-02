@@ -1,4 +1,4 @@
-![adonisjs-whatsapp](https://socialify.git.ci/Bright-Hustle/adonisjs-whatsapp/image?description=1&descriptionEditable=Package%20makes%20it%20easy%20for%20adonis%20to%20access%20the%20WhatsApp%20Cloud%20API&forks=1&issues=1&language=1&logo=https%3A%2F%2Fupload.wikimedia.org%2Fwikipedia%2Fcommons%2Fthumb%2F6%2F6b%2FWhatsApp.svg%2F1024px-WhatsApp.svg.png%3F20220228223904&name=1&owner=1&pattern=Circuit%20Board&pulls=1&stargazers=1&theme=Light)
+![adonisjs-whatsapp](https://socialify.git.ci/CodeSyncr/adonisjs-whatsapp/image?description=1&descriptionEditable=Package%20makes%20it%20easy%20for%20adonis%20to%20access%20the%20WhatsApp%20Cloud%20API&forks=1&issues=1&language=1&logo=https%3A%2F%2Fupload.wikimedia.org%2Fwikipedia%2Fcommons%2Fthumb%2F6%2F6b%2FWhatsApp.svg%2F1024px-WhatsApp.svg.png%3F20220228223904&name=1&owner=1&pattern=Circuit%20Board&pulls=1&stargazers=1&theme=Light)
 
 ## What's this
 
@@ -107,4 +107,4 @@ This package is not officially maintained by Facebook. WhatsApp and Facebook tra
 
 ## NOTICE
 
-This package is modified from the original package https://github.com/sooluh/adonisjs-whatsapp Written By : sooluh
+This package is modified from the original package https://github.com//adonisjs-whatsapp Written By : sooluh
