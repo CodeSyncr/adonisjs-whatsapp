@@ -1,0 +1,5 @@
+---
+to: {{ app.makePath('start/whatsapp.ts') }}
+---
+
+// import { whatsapp } from '@brighthustle/adonisjs-whatsapp'

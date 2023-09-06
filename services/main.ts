@@ -8,7 +8,7 @@
  */
 
 import app from '@adonisjs/core/services/app'
-import { WhatsAppCloudApiService } from '../src/types/main.js'
+import type { WhatsAppCloudApiService } from '../src/types/main.js'
 
 let whatsapp: WhatsAppCloudApiService
 

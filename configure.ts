@@ -11,7 +11,9 @@ import type Configure from '@adonisjs/core/commands/configure'
 
 export async function configure(command: Configure) {
   // Publish config file
-  await command.publishStub('config/mail.stub')
+  await command.publishStub('config/whatsapp.stub')
+  await command.publishStub('start/whatsapp.stub')
+
 
   const codemods = await command.createCodemods()
 
