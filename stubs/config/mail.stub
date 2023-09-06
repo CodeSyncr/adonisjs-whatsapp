@@ -1,0 +1,22 @@
+---
+to: {{ app.configPath('types/whatsapp.ts') }}
+---
+import env from '#start/env'
+import whatsapp from '#config/whatsapp';
+
+const whatsappConfig = defineConfig({
+  webhookRoute: '/webhook/whatsapp',
+  timeout: 60_000,
+  phoneNumberId: env.get('WABA_PHONE_ID'),
+  whatsappBusinessId:  env.get('WABA_ID'),
+  accessToken: env.get('WABA_TOKEN'),
+  verifyToken: env.get('WABA_VERIFY'),
+  graphUrl: 'https://graph.facebook.com',
+  graphVersion: 'v16.0',
+})
+
+export default whatsappConfig
+
+declare module '@adonisjs/whatsapp/types' {
+  export interface WhatsappConnection extends InferWhatsapp<typeof whatsappConfig> {}
+}

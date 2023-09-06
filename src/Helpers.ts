@@ -1,5 +1,5 @@
 export default class Helpers {
-  public static isUrl(string: string) {
+  static isUrl(string: string) {
     const pattern = new RegExp(
       '^(https?:\\/\\/)?' +
         '((([a-z\\d]([a-z\\d-]*[a-z\\d])*)\\.)+[a-z]{2,}|' +
@@ -13,8 +13,8 @@ export default class Helpers {
     return !!pattern.test(string)
   }
 
-  public static translateType(
-    type: string
+  static translateType(
+    type: any
   ):
     | 'text'
     | 'image'
@@ -26,7 +26,7 @@ export default class Helpers {
     | 'contacts'
     | 'button'
     | 'list' {
-    const types = {
+    const types: any = {
       button_reply: 'button',
       list_reply: 'list',
     }
@@ -34,7 +34,7 @@ export default class Helpers {
     return types[type] || type
   }
 
-  public static translateInteractive(message: Record<string, any>) {
+  static translateInteractive(message: Record<string, any>) {
     if (!message || !message.type || message.type !== 'interactive') return null
 
     return {

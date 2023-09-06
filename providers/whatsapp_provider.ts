@@ -1,16 +1,14 @@
-import Helpers from '../src/Helpers'
-import { WhatsAppCloudApi } from '../src/WhatsAppCloudApi'
-import { ApplicationContract } from '@ioc:Adonis/Core/Application'
-import { HttpContextContract } from '@ioc:Adonis/Core/HttpContext'
+import { ApplicationService } from '@adonisjs/core/types'
 import {
   WhatsAppConfig,
   WhatsAppMessageContract,
   WhatsAppStatusContract,
-} from '@ioc:Adonis/Addons/WhatsApp'
+} from '../src/types/main.js'
+import { Whatsapp } from '../src/whatsapp.js'
+import { HttpContext } from '@adonisjs/core/http'
+import Helpers from '../src/helpers.js'
 
 export default class WhatsAppProvider {
-  public static needsApplication = true
-
   private config = {
     webhookRoute: '/webhook/whatsapp',
     timeout: 60,
@@ -22,31 +20,27 @@ export default class WhatsAppProvider {
     graphVersion: 'v16.0',
   }
 
-  constructor(protected app: ApplicationContract) {}
+  constructor(protected app: ApplicationService) {}
+  async register() {
+    this.app.container.singleton('whatsapp', async () => {
+      //   const drive = this.app.container.resolveBinding('Adonis/Core/Drive')
+      const emitter = await this.app.container.make('emitter')
+      const config = this.app.config.get<WhatsAppConfig>('whatsapp', this.config)
 
-  public register() {
-    this.app.container.singleton('Adonis/Addons/WhatsApp', () => {
-      const drive = this.app.container.resolveBinding('Adonis/Core/Drive')
-      const emitter = this.app.container.resolveBinding('Adonis/Core/Event')
-
-      const config = this.app.container
-        .resolveBinding('Adonis/Core/Config')
-        .get('whatsapp', this.config)
-
-      return new WhatsAppCloudApi(config, drive, emitter)
+      return new Whatsapp(config, emitter)
     })
   }
 
-  public boot() {
-    const Route = this.app.container.use('Adonis/Core/Route')
-    const Event = this.app.container.use('Adonis/Core/Event')
-    const Config = this.app.container.use('Adonis/Core/Config')
-    const Logger = this.app.container.use('Adonis/Core/Logger')
+  async boot() {
+    const router: any = await this.app.container.make('Adonis/Core/Route')
+    const emitter: any = await this.app.container.make('emitter')
+    const config: any = await this.app.container.make('config')
+    const logger: any = await this.app.container.make('logger')
 
-    const whatsapp: WhatsAppConfig = Config.get('whatsapp', this.config)
+    const whatsapp: WhatsAppConfig = config.get('whatsapp', this.config)
 
     // webhook verifier
-    Route.get(whatsapp.webhookRoute, (ctx: HttpContextContract) => {
+    router.get(whatsapp.webhookRoute, (ctx: HttpContext) => {
       const payload = ctx.request.qs()
 
       if (!payload['hub.mode'] || !payload['hub.verify_token']) {
@@ -60,12 +54,12 @@ export default class WhatsAppProvider {
         return ctx.response.status(403).send({ code: 403 })
       }
 
-      Logger.info('Webhook verified!')
+      logger.info('Webhook verified!')
       return ctx.response.status(200).send(payload['hub.challenge'])
     })
 
     // webhook
-    Route.post(whatsapp.webhookRoute, async (ctx: HttpContextContract) => {
+    router.post(whatsapp.webhookRoute, async (ctx: HttpContext) => {
       const payload = ctx.request.body()
 
       if (!payload.object) {
@@ -103,8 +97,8 @@ export default class WhatsAppProvider {
           type,
         }
 
-        await Event.emit('wa:message:*', data)
-        await Event.emit(`wa:message:${type}`, data)
+        await emitter.emit('wa:message:*', data)
+        await emitter.emit(`wa:message:${type}`, data)
       }
 
       if (status) {
@@ -115,12 +109,12 @@ export default class WhatsAppProvider {
           status: status.status,
         }
 
-        await Event.emit(`wa:status:${status.status}`, data)
-        await Event.emit('wa:status:*', data)
+        await emitter.emit(`wa:status:${status.status}`, data)
+        await emitter.emit('wa:status:*', data)
       }
 
       if (data !== null) {
-        await Event.emit('wa:*', data)
+        await emitter.emit('wa:*', data)
       }
     })
   }

@@ -1,12 +1,5 @@
-import * as fs from 'fs'
 import axios from 'axios'
-import mime from 'mime-types'
-import Helpers from './Helpers'
-import FormData from 'form-data'
-import WhatsAppClient from './WhatsAppClient'
-import { EmitterContract } from '@ioc:Adonis/Core/Event'
-import { DriveManagerContract } from '@ioc:Adonis/Core/Drive'
-import { MultipartFileContract } from '@ioc:Adonis/Core/BodyParser'
+import WhatsAppClient from './whats_app_client.js'
 import {
   ButtonsOptions,
   ComponentOptions,
@@ -22,29 +15,42 @@ import {
   TemplateCategory,
   TemplateComponent,
   TextOptions,
-  WhatsAppCloudApiContract,
   WhatsAppConfig,
   WhatsAppResultContract,
   WhatsAppTemplateResultContract,
-} from '@ioc:Adonis/Addons/WhatsApp'
+} from './types/main.js'
+import { Emitter } from '@adonisjs/core/events'
+import FormData from 'form-data'
+import mime from 'mime-types'
+import * as fs from 'node:fs'
+import Helpers from './helpers.js'
 
-export class WhatsAppCloudApi implements WhatsAppCloudApiContract {
-  private client: WhatsAppClient
+export type WhatsAppResult = {
+  messaging_product: 'whatsapp'
+  contacts: {
+    input: string
+    wa_id: string
+  }[]
+  messages: {
+    id: string
+  }[]
+}
+
+export class Whatsapp {
+  #config: WhatsAppConfig
+
+  #client: WhatsAppClient
 
   constructor(
-    private config: WhatsAppConfig,
-    private drive: DriveManagerContract,
-    private emitter: EmitterContract
+    config: WhatsAppConfig,
+    public emitter: Emitter<any>
   ) {
-    this.client = new WhatsAppClient(this.config)
+    this.#config = config
+    this.#client = new WhatsAppClient(this.#config)
   }
 
-  public async sendText(
-    to: number,
-    text: string,
-    options?: TextOptions
-  ): Promise<WhatsAppResultContract> {
-    return await this.client.send({
+  async sendText(to: number, text: string, options?: TextOptions): Promise<WhatsAppResultContract> {
+    return await this.#client.send({
       to,
       type: 'text',
       text: {
@@ -54,12 +60,12 @@ export class WhatsAppCloudApi implements WhatsAppCloudApiContract {
     })
   }
 
-  public async sendImage(
+  async sendImage(
     to: number,
     media: string,
     options?: MediaOptions
   ): Promise<WhatsAppResultContract> {
-    return await this.client.send({
+    return await this.#client.send({
       to,
       type: 'image',
       image: {
@@ -69,12 +75,12 @@ export class WhatsAppCloudApi implements WhatsAppCloudApiContract {
     })
   }
 
-  public async sendDocument(
+  async sendDocument(
     to: number,
     media: string,
     options?: DocumentOptions
   ): Promise<WhatsAppResultContract> {
-    return await this.client.send({
+    return await this.#client.send({
       to,
       type: 'document',
       document: {
@@ -84,8 +90,8 @@ export class WhatsAppCloudApi implements WhatsAppCloudApiContract {
     })
   }
 
-  public async sendAudio(to: number, media: string): Promise<WhatsAppResultContract> {
-    return await this.client.send({
+  async sendAudio(to: number, media: string): Promise<WhatsAppResultContract> {
+    return await this.#client.send({
       to,
       type: 'audio',
       audio: {
@@ -94,12 +100,12 @@ export class WhatsAppCloudApi implements WhatsAppCloudApiContract {
     })
   }
 
-  public async sendVideo(
+  async sendVideo(
     to: number,
     media: string,
     options?: MediaOptions
   ): Promise<WhatsAppResultContract> {
-    return await this.client.send({
+    return await this.#client.send({
       to,
       type: 'video',
       video: {
@@ -109,8 +115,8 @@ export class WhatsAppCloudApi implements WhatsAppCloudApiContract {
     })
   }
 
-  public async sendSticker(to: number, media: string): Promise<WhatsAppResultContract> {
-    return await this.client.send({
+  async sendSticker(to: number, media: string): Promise<WhatsAppResultContract> {
+    return await this.#client.send({
       to,
       type: 'sticker',
       sticker: {
@@ -119,12 +125,12 @@ export class WhatsAppCloudApi implements WhatsAppCloudApiContract {
     })
   }
 
-  public async sendLocation(
+  async sendLocation(
     to: number,
     coordinate: CoordinateOptions,
     options?: LocationOptions
   ): Promise<WhatsAppResultContract> {
-    return await this.client.send({
+    return await this.#client.send({
       to,
       type: 'location',
       location: {
@@ -134,13 +140,13 @@ export class WhatsAppCloudApi implements WhatsAppCloudApiContract {
     })
   }
 
-  public async sendTemplate(
+  async sendTemplate(
     to: number,
     template: string,
     language: string,
     components?: ComponentOptions[]
   ): Promise<WhatsAppResultContract> {
-    return await this.client.send({
+    return await this.#client.send({
       to,
       type: 'template',
       template: {
@@ -153,24 +159,21 @@ export class WhatsAppCloudApi implements WhatsAppCloudApiContract {
     })
   }
 
-  public async sendContact(
-    to: number,
-    contacts: ContactOptions[]
-  ): Promise<WhatsAppResultContract> {
-    return await this.client.send({
+  async sendContact(to: number, contacts: ContactOptions[]): Promise<WhatsAppResultContract> {
+    return await this.#client.send({
       to,
       type: 'contacts',
       contacts,
     })
   }
 
-  public async sendButtons(
+  async sendButtons(
     to: number,
     text: string,
     buttons: ButtonsOptions,
     options?: InteractiveOptions
   ): Promise<WhatsAppResultContract> {
-    return await this.client.send({
+    return await this.#client.send({
       to,
       type: 'interactive',
       interactive: {
@@ -193,14 +196,14 @@ export class WhatsAppCloudApi implements WhatsAppCloudApiContract {
     })
   }
 
-  public async sendList(
+  async sendList(
     to: number,
     text: string,
     button: string,
     sections: SectionOptions[],
     options?: InteractiveOptions
   ): Promise<WhatsAppResultContract> {
-    return await this.client.send({
+    return await this.#client.send({
       to,
       type: 'interactive',
       interactive: {
@@ -216,8 +219,8 @@ export class WhatsAppCloudApi implements WhatsAppCloudApiContract {
     })
   }
 
-  public async markAsRead(wamid: string): Promise<boolean> {
-    const response = await this.client.send(
+  async markAsRead(wamid: string): Promise<boolean> {
+    const response = await this.#client.send(
       {
         status: 'read',
         message_id: wamid,
@@ -228,13 +231,13 @@ export class WhatsAppCloudApi implements WhatsAppCloudApiContract {
     return response?.success || false
   }
 
-  public on(event: string, handler: (message: any) => void) {
+  on(event: string, handler: (message: any) => void) {
     this.emitter.on(`wa:${event}`, (message) => {
       handler(message)
     })
   }
 
-  public async uploadMedia(source: string | MultipartFileContract): Promise<string | false> {
+  async uploadMedia(source: string | any): Promise<string | false> {
     source = typeof source !== 'string' ? (source.tmpPath as string) : source
 
     const form = new FormData()
@@ -242,42 +245,42 @@ export class WhatsAppCloudApi implements WhatsAppCloudApiContract {
     form.append('type', mime.contentType(source))
     form.append('file', fs.readFileSync(source), { filename: source })
 
-    const response = await this.client.upload(form)
+    const response = await this.#client.upload(form)
     return response.id || false
   }
 
-  public async downloadMedia(media: string, options?: DownloadOptions): Promise<string | false> {
-    const response = await this.client.media(media)
+  async downloadMedia(media: string, options?: DownloadOptions): Promise<string | false> {
+    const response = await this.#client.media(media)
     if (!response.url || !response.mime_type) return false
 
     const ext = mime.extension(response.mime_type)
     const filename = options?.filename || media + (ext ? '.' + ext : '')
-    const filepath = options?.folder ? options.folder + '/' + filename : filename
+    // const filepath = options?.folder ? options.folder + '/' + filename : filename
 
     const file = await axios({
       method: 'GET',
       url: response.url,
-      headers: { Authorization: 'Bearer ' + this.config.accessToken },
+      headers: { Authorization: 'Bearer ' + this.#config.accessToken },
       responseType: 'stream',
     })
-
-    if (options?.disk) {
-      const disk = this.drive.use(options.disk) as DriveManagerContract
-      await disk.putStream(filepath, file.data)
-    } else {
-      await this.drive.putStream(filepath, file.data)
-    }
+    console.log(file)
+    // if (options?.disk) {
+    //   const disk = this.drive.use(options.disk) as DriveManagerContract
+    //   await disk.putStream(filepath, file.data)
+    // } else {
+    //   await this.drive.putStream(filepath, file.data)
+    // }
 
     return filename
   }
 
-  public async createTemplate(
+  async createTemplate(
     category: TemplateCategory,
     name: string,
     language: string,
     components: TemplateComponent[]
   ): Promise<WhatsAppTemplateResultContract> {
-    return await this.client.createTemplate({
+    return await this.#client.createTemplate({
       category,
       name,
       language,
@@ -285,11 +288,11 @@ export class WhatsAppCloudApi implements WhatsAppCloudApiContract {
     })
   }
 
-  public async getTemplates(options?: GetMessageTemplatesQueryParams): Promise<any> {
-    return await this.client.getTemplates(options)
+  async getTemplates(options?: GetMessageTemplatesQueryParams): Promise<any> {
+    return await this.#client.getTemplates(options)
   }
 
-  public async deleteTemplate(name: string): Promise<any> {
-    return await this.client.deleteTemplate(name)
+  async deleteTemplate(name: string): Promise<any> {
+    return await this.#client.deleteTemplate(name)
   }
 }

@@ -1,7 +1,21 @@
-declare module '@ioc:Adonis/Core/Event' {
-  import { WhatsAppMessageContract, WhatsAppStatusContract } from '@ioc:Adonis/Addons/WhatsApp'
+/*
+ * @adonisjs/whatsapp
+ *
+ * (c) AdonisJS
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
 
-  interface EventsList {
+import { Whatsapp } from '../whatsapp.js'
+import { WhatsAppMessageContract, WhatsAppStatusContract } from './main.js'
+
+declare module '@adonisjs/core/types' {
+  export interface ContainerBindings {
+    whatsapp: Whatsapp
+  }
+
+  export interface EventsList {
     'wa:message:text': WhatsAppMessageContract
     'wa:message:image': WhatsAppMessageContract
     'wa:message:document': WhatsAppMessageContract

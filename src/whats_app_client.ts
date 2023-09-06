@@ -4,7 +4,7 @@ import {
   GetMessageTemplatesQueryParams,
   WhatsAppConfig,
   WhatsAppResultContract,
-} from '@ioc:Adonis/Addons/WhatsApp'
+} from './types/main.js'
 
 type WhatsAppResult = {
   messaging_product: 'whatsapp'
@@ -18,28 +18,31 @@ type WhatsAppResult = {
 }
 
 export default class WhatsAppClient {
-  constructor(private config: WhatsAppConfig) {}
-
-  private headers = {
-    'Content-Type': 'application/json',
-    'Authorization': 'Bearer ' + this.config.accessToken,
+  #config: WhatsAppConfig
+  #headers: any
+  #mandatory: any
+  constructor(config: WhatsAppConfig) {
+    this.#config = config
+    this.#headers = {
+      'Content-Type': 'application/json',
+      'Authorization': 'Bearer ' + this.#config.accessToken,
+    }
+    this.#mandatory = {
+      messaging_product: 'whatsapp',
+      recipient_type: 'individual',
+    }
   }
 
-  private mandatory = {
-    messaging_product: 'whatsapp',
-    recipient_type: 'individual',
-  }
-
-  public async send(data: Record<string, any>, parse = true) {
-    const { timeout, phoneNumberId, graphUrl, graphVersion } = this.config
+  async send(data: Record<string, any>, parse = true) {
+    const { timeout, phoneNumberId, graphUrl, graphVersion } = this.#config
 
     const response = await axios({
       validateStatus: (status) => status <= 999,
       method: 'POST',
       url: `${graphUrl}/${graphVersion}/${phoneNumberId}/messages`,
       timeout,
-      headers: this.headers,
-      data: { ...this.mandatory, ...data },
+      headers: this.#headers,
+      data: { ...this.#mandatory, ...data },
       responseType: 'json',
     })
 
@@ -47,18 +50,18 @@ export default class WhatsAppClient {
       throw new Error(response.data.error?.error_data?.details || response.data.error?.message)
     }
 
-    return parse ? WhatsAppClient.parse(response.data) : response.data
+    return parse ? WhatsAppClient.#parse(response.data) : response.data
   }
 
-  public async media(media: string) {
-    const { timeout, graphUrl, graphVersion } = this.config
+  async media(media: string) {
+    const { timeout, graphUrl, graphVersion } = this.#config
 
     const response = await axios({
       validateStatus: (status) => status <= 999,
       method: 'GET',
       url: `${graphUrl}/${graphVersion}/${media}`,
       timeout,
-      headers: this.headers,
+      headers: this.#headers,
       responseType: 'json',
     })
 
@@ -69,15 +72,15 @@ export default class WhatsAppClient {
     return response.data
   }
 
-  public async upload(form: FormData) {
-    const { timeout, phoneNumberId, graphUrl, graphVersion } = this.config
+  async upload(form: FormData) {
+    const { timeout, phoneNumberId, graphUrl, graphVersion } = this.#config
 
     const response = await axios({
       validateStatus: (status) => status <= 999,
       method: 'POST',
       url: `${graphUrl}/${graphVersion}/${phoneNumberId}/media`,
       timeout,
-      headers: { ...form.getHeaders(), ...this.headers },
+      headers: { ...form.getHeaders(), ...this.#headers },
       data: form,
       responseType: 'json',
     })
@@ -89,15 +92,15 @@ export default class WhatsAppClient {
     return response.data
   }
 
-  public async createTemplate(data: Record<string, any>) {
-    const { timeout, whatsappBusinessId, graphUrl, graphVersion } = this.config
+  async createTemplate(data: Record<string, any>) {
+    const { timeout, whatsappBusinessId, graphUrl, graphVersion } = this.#config
 
     const response = await axios({
       validateStatus: (status) => status <= 999,
       method: 'POST',
       url: `${graphUrl}/${graphVersion}/${whatsappBusinessId}/message_templates`,
       timeout,
-      headers: this.headers,
+      headers: this.#headers,
       data: data,
       responseType: 'json',
     })
@@ -109,8 +112,8 @@ export default class WhatsAppClient {
     return response.data
   }
 
-  public async getTemplates(options?: GetMessageTemplatesQueryParams) {
-    const { timeout, whatsappBusinessId, graphUrl, graphVersion } = this.config
+  async getTemplates(options?: GetMessageTemplatesQueryParams) {
+    const { timeout, whatsappBusinessId, graphUrl, graphVersion } = this.#config
     let qs = ''
 
     if (options) {
@@ -129,7 +132,7 @@ export default class WhatsAppClient {
       method: 'GET',
       url: `${graphUrl}/${graphVersion}/${whatsappBusinessId}/message_templates${qs}`,
       timeout,
-      headers: this.headers,
+      headers: this.#headers,
       responseType: 'json',
     })
 
@@ -140,15 +143,15 @@ export default class WhatsAppClient {
     return response.data
   }
 
-  public async deleteTemplate(name: string): Promise<any> {
-    const { timeout, graphUrl, graphVersion, whatsappBusinessId } = this.config
+  async deleteTemplate(name: string): Promise<any> {
+    const { timeout, graphUrl, graphVersion, whatsappBusinessId } = this.#config
 
     const response = await axios({
       validateStatus: (status) => status <= 999,
       method: 'DELETE',
       url: `${graphUrl}/${graphVersion}/${whatsappBusinessId}/message_templates?name=${name}`,
       timeout,
-      headers: this.headers,
+      headers: this.#headers,
       responseType: 'json',
     })
 
@@ -159,7 +162,7 @@ export default class WhatsAppClient {
     return response.data
   }
 
-  private static parse(data: WhatsAppResult): WhatsAppResultContract {
+  static #parse(data: WhatsAppResult): WhatsAppResultContract {
     return {
       input: Number(data.contacts[0].input),
       phone: data.contacts[0].wa_id,
