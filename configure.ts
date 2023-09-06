@@ -17,6 +17,6 @@ export async function configure(command: Configure) {
 
   // Add provider to rc file
   await codemods.updateRcFile((rcFile: any) => {
-    rcFile.addProvider('@adonisjs/whatsapp/whatsapp_provider')
+    rcFile.addProvider('@brighthustle/adonisjs-whatsapp/whatsapp_provider')
   })
 }

@@ -18,11 +18,7 @@
   ],
   "exports": {
     ".": "./build/index.js",
-    "./commands": "./build/commands/main.js",
-    "./commands/*": "./build/commands/*.js",
-    "./mail_provider": "./build/providers/mail_provider.js",
-    "./services/main": "./build/services/main.js",
-    "./factories": "./build/factories/main.js",
+    "./whatsapp_provider": "./build/providers/whatsapp_provider.js",
     "./types": "./build/src/types/main.js"
   },
   "scripts": {
