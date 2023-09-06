@@ -32,7 +32,7 @@ export default class WhatsAppProvider {
   }
 
   async boot() {
-    const router: any = await this.app.container.make('Adonis/Core/Route')
+    const router: any = await this.app.container.make('router')
     const emitter: any = await this.app.container.make('emitter')
     const config: any = await this.app.container.make('config')
     const logger: any = await this.app.container.make('logger')
