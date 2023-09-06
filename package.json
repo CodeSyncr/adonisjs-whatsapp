@@ -114,6 +114,7 @@
   "np": {
     "message": "chore(release): %s",
     "contents": ".",
+    "branch": "develop",
     "tag": "next",
     "anyBranch": false
   },
