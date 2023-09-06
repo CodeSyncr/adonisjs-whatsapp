@@ -14,7 +14,6 @@ export async function configure(command: Configure) {
   await command.publishStub('config/whatsapp.stub')
   await command.publishStub('start/whatsapp.stub')
 
-
   const codemods = await command.createCodemods()
 
   // Add provider to rc file

@@ -20,7 +20,7 @@ export default class WhatsAppProvider {
   }
 
   constructor(protected app: ApplicationService) {}
-  
+
   async register() {
     this.app.container.singleton('whatsapp', async () => {
       //   const drive = this.app.container.resolveBinding('Adonis/Core/Drive')
