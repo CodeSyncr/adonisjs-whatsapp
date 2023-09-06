@@ -19,6 +19,7 @@
   "exports": {
     ".": "./build/index.js",
     "./whatsapp_provider": "./build/providers/whatsapp_provider.js",
+    "./services/main": "./build/services/main.js",
     "./types": "./build/src/types/main.js"
   },
   "scripts": {
