@@ -253,7 +253,7 @@ export interface WhatsAppTemplateResultContract {
   category: string
 }
 
-export interface WhatsAppCloudApiContract {
+export interface WhatsAppCloudApiService {
   sendText(to: number, text: string, options?: TextOptions): Promise<WhatsAppResultContract>
 
   sendImage(to: number, media: string, options?: MediaOptions): Promise<WhatsAppResultContract>

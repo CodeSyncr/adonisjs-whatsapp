@@ -8,9 +8,9 @@
  */
 
 import app from '@adonisjs/core/services/app'
-import { WhatsAppCloudApiContract } from '../src/types/main.js'
+import { WhatsAppCloudApiService } from '../src/types/main.js'
 
-let whatsapp: WhatsAppCloudApiContract
+let whatsapp: WhatsAppCloudApiService
 
 /**
  * Returns a singleton instance of the Redis manager from the

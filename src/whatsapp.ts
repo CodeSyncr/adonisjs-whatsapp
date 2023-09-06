@@ -36,7 +36,7 @@ export type WhatsAppResult = {
   }[]
 }
 
-export class Whatsapp {
+class Whatsapp {
   #config: WhatsAppConfig
 
   #client: WhatsAppClient
@@ -296,3 +296,5 @@ export class Whatsapp {
     return await this.#client.deleteTemplate(name)
   }
 }
+
+export default Whatsapp

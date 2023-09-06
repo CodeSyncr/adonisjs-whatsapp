@@ -4,7 +4,6 @@ import {
   WhatsAppMessageContract,
   WhatsAppStatusContract,
 } from '../src/types/main.js'
-import { Whatsapp } from '../src/whatsapp.js'
 import { HttpContext } from '@adonisjs/core/http'
 import Helpers from '../src/helpers.js'
 
@@ -24,6 +23,7 @@ export default class WhatsAppProvider {
   async register() {
     this.app.container.singleton('whatsapp', async () => {
       //   const drive = this.app.container.resolveBinding('Adonis/Core/Drive')
+      const { default: Whatsapp } = await import('../src/whatsapp.js')
       const emitter = await this.app.container.make('emitter')
       const config = this.app.config.get<WhatsAppConfig>('whatsapp', this.config)
 

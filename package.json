@@ -2,14 +2,12 @@
   "name": "@brighthustle/adonisjs-whatsapp",
   "description": "Connect your WhatsApp Cloud API with AdonisJS",
   "version": "1.0.5-4",
-  "main": "build/index.js",
   "type": "module",
+  "main": "build/index.js",
   "files": [
     "build/src",
     "build/services",
     "build/providers",
-    "build/commands",
-    "build/factories",
     "build/stubs",
     "build/configure.js",
     "build/configure.d.ts",
@@ -18,8 +16,8 @@
   ],
   "exports": {
     ".": "./build/index.js",
-    "./whatsapp_provider": "./build/providers/whatsapp_provider.js",
     "./services/main": "./build/services/main.js",
+    "./whatsapp_provider": "./build/providers/whatsapp_provider.js",
     "./types": "./build/src/types/main.js"
   },
   "scripts": {

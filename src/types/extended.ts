@@ -7,7 +7,7 @@
  * file that was distributed with this source code.
  */
 
-import { Whatsapp } from '../whatsapp.js'
+import Whatsapp from '../whatsapp.js'
 import { WhatsAppMessageContract, WhatsAppStatusContract } from './main.js'
 
 declare module '@adonisjs/core/types' {
