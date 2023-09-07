@@ -10,7 +10,7 @@
 import Whatsapp from '../whatsapp.js'
 import { WhatsAppMessageContract, WhatsAppStatusContract } from './main.js'
 
-declare module '@adonisjs/core/types' {
+declare module '@adonisjs/core/app' {
   export interface ContainerBindings {
     whatsapp: Whatsapp
   }
