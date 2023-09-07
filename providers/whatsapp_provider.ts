@@ -32,7 +32,6 @@ export default class WhatsAppProvider {
 
   async register() {
     this.app.container.singleton('whatsapp', async () => {
-      //   const drive = this.app.container.resolveBinding('Adonis/Core/Drive')
       const { default: Whatsapp } = await import('../src/whatsapp.js')
       const emitter = await this.app.container.make('emitter')
       const config = this.app.config.get<WhatsAppConfig>('whatsapp', this.config)

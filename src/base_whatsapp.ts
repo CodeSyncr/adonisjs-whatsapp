@@ -1,5 +1,5 @@
-import { WhatsappService } from './types/main.js'
+import Whatsapp from './whatsapp.js'
 
 export abstract class BaseWhatsapp {
-  static mail: WhatsappService
+  static whatsapp: Whatsapp
 }
