@@ -7,6 +7,8 @@
  * file that was distributed with this source code.
  */
 
+import Whatsapp from '../whatsapp.js'
+
 export type TextOptions = {
   preview_url?: boolean
 }
@@ -254,93 +256,95 @@ export interface WhatsAppTemplateResultContract {
   category: string
 }
 
-export interface WhatsAppCloudApiService {
-  sendText(to: number, text: string, options?: TextOptions): Promise<WhatsAppResultContract>
+export interface WhatsappService extends Whatsapp {}
 
-  sendImage(to: number, media: string, options?: MediaOptions): Promise<WhatsAppResultContract>
+// export interface WhatsAppCloudApiService {
+//   sendText(to: number, text: string, options?: TextOptions): Promise<WhatsAppResultContract>
 
-  sendDocument(
-    to: number,
-    media: string,
-    options?: DocumentOptions
-  ): Promise<WhatsAppResultContract>
+//   sendImage(to: number, media: string, options?: MediaOptions): Promise<WhatsAppResultContract>
 
-  sendAudio(to: number, media: string): Promise<WhatsAppResultContract>
+//   sendDocument(
+//     to: number,
+//     media: string,
+//     options?: DocumentOptions
+//   ): Promise<WhatsAppResultContract>
 
-  sendVideo(to: number, media: string, options?: MediaOptions): Promise<WhatsAppResultContract>
+//   sendAudio(to: number, media: string): Promise<WhatsAppResultContract>
 
-  sendSticker(to: number, media: string): Promise<WhatsAppResultContract>
+//   sendVideo(to: number, media: string, options?: MediaOptions): Promise<WhatsAppResultContract>
 
-  sendLocation(
-    to: number,
-    coordinate: CoordinateOptions,
-    options?: LocationOptions
-  ): Promise<WhatsAppResultContract>
+//   sendSticker(to: number, media: string): Promise<WhatsAppResultContract>
 
-  sendTemplate(
-    to: number,
-    template: string,
-    language: string,
-    components: ComponentOptions[]
-  ): Promise<WhatsAppResultContract>
+//   sendLocation(
+//     to: number,
+//     coordinate: CoordinateOptions,
+//     options?: LocationOptions
+//   ): Promise<WhatsAppResultContract>
 
-  sendContact(to: number, contacts: ContactOptions[]): Promise<WhatsAppResultContract>
+//   sendTemplate(
+//     to: number,
+//     template: string,
+//     language: string,
+//     components: ComponentOptions[]
+//   ): Promise<WhatsAppResultContract>
 
-  sendButtons(
-    to: number,
-    text: string,
-    buttons: ButtonsOptions,
-    options?: InteractiveOptions
-  ): Promise<WhatsAppResultContract>
+//   sendContact(to: number, contacts: ContactOptions[]): Promise<WhatsAppResultContract>
 
-  sendList(
-    to: number,
-    text: string,
-    button: string,
-    sections: SectionOptions[],
-    options?: InteractiveOptions
-  ): Promise<WhatsAppResultContract>
+//   sendButtons(
+//     to: number,
+//     text: string,
+//     buttons: ButtonsOptions,
+//     options?: InteractiveOptions
+//   ): Promise<WhatsAppResultContract>
 
-  markAsRead(wamid: string): Promise<boolean>
+//   sendList(
+//     to: number,
+//     text: string,
+//     button: string,
+//     sections: SectionOptions[],
+//     options?: InteractiveOptions
+//   ): Promise<WhatsAppResultContract>
 
-  on(
-    event:
-      | 'message:text'
-      | 'message:image'
-      | 'message:document'
-      | 'message:audio'
-      | 'message:video'
-      | 'message:sticker'
-      | 'message:location'
-      | 'message:contacts'
-      | 'message:button'
-      | 'message:list'
-      | 'message:*',
-    handler: (message: WhatsAppMessageContract) => void
-  ): void
+//   markAsRead(wamid: string): Promise<boolean>
 
-  on(
-    event: 'status:sent' | 'status:delivered' | 'status:read' | 'status:*',
-    handler: (message: WhatsAppStatusContract) => void
-  ): void
+//   on(
+//     event:
+//       | 'message:text'
+//       | 'message:image'
+//       | 'message:document'
+//       | 'message:audio'
+//       | 'message:video'
+//       | 'message:sticker'
+//       | 'message:location'
+//       | 'message:contacts'
+//       | 'message:button'
+//       | 'message:list'
+//       | 'message:*',
+//     handler: (message: WhatsAppMessageContract) => void
+//   ): void
 
-  on(event: '*', handler: (message: WhatsAppMessageContract | WhatsAppStatusContract) => void): void
+//   on(
+//     event: 'status:sent' | 'status:delivered' | 'status:read' | 'status:*',
+//     handler: (message: WhatsAppStatusContract) => void
+//   ): void
 
-  downloadMedia(media: string, options?: DownloadOptions): Promise<string | false>
+//   on(event: '*', handler: (message: WhatsAppMessageContract | WhatsAppStatusContract) => void): void
 
-  uploadMedia(source: string | any): Promise<string | false>
+//   downloadMedia(media: string, options?: DownloadOptions): Promise<string | false>
 
-  createTemplate(
-    category: TemplateCategory,
-    name: string,
-    language: string,
-    components: TemplateComponent[]
-  ): Promise<WhatsAppTemplateResultContract>
+//   uploadMedia(source: string | any): Promise<string | false>
 
-  getTemplates(options?: GetMessageTemplatesQueryParams): Promise<any>
+//   createTemplate(
+//     category: TemplateCategory,
+//     name: string,
+//     language: string,
+//     components: TemplateComponent[]
+//   ): Promise<WhatsAppTemplateResultContract>
 
-  deleteTemplate(name: string): Promise<any>
-}
+//   getTemplates(options?: GetMessageTemplatesQueryParams): Promise<any>
+
+//   deleteTemplate(name: string): Promise<any>
+// }
 
 export interface WhatsAppConfig {
   webhookRoute: string
