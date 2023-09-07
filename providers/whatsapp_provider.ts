@@ -128,11 +128,9 @@ export default class WhatsAppProvider {
       }
     })
   }
-  
+
   /**
    * Close all drivers when shutting down the app
    */
-  async shutdown() {
-    
-  }
+  async shutdown() {}
 }
