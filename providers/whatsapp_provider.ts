@@ -15,6 +15,7 @@ import {
 } from '../src/types/main.js'
 import { HttpContext } from '@adonisjs/core/http'
 import Helpers from '../src/helpers.js'
+import { Emitter } from '@adonisjs/core/events'
 
 export default class WhatsAppProvider {
   private config = {
@@ -33,7 +34,7 @@ export default class WhatsAppProvider {
   async register() {
     this.app.container.singleton('whatsapp', async () => {
       const { default: Whatsapp } = await import('../src/whatsapp.js')
-      const emitter = await this.app.container.make('emitter')
+      const emitter: Emitter<any> = await this.app.container.make('emitter')
       const config = this.app.config.get<WhatsAppConfig>('whatsapp', this.config)
 
       return new Whatsapp(config, emitter)
@@ -42,7 +43,7 @@ export default class WhatsAppProvider {
 
   async boot() {
     const router: any = await this.app.container.make('router')
-    const emitter: any = await this.app.container.make('emitter')
+    const emitter: Emitter<any> = await this.app.container.make('emitter')
     const config: any = await this.app.container.make('config')
     const logger: any = await this.app.container.make('logger')
 
