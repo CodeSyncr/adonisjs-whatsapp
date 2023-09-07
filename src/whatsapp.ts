@@ -24,6 +24,7 @@ import {
   TemplateCategory,
   TemplateComponent,
   TextOptions,
+  WhatsAppConfig,
   WhatsAppResultContract,
   WhatsAppTemplateResultContract,
 } from './types/main.js'
@@ -44,8 +45,8 @@ export type WhatsAppResult = {
   }[]
 }
 
-class Whatsapp<WhatsAppConfig> {
-  #config: any
+class Whatsapp {
+  #config: WhatsAppConfig
 
   #client: WhatsAppClient
 

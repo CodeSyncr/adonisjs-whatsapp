@@ -256,6 +256,8 @@ export interface WhatsAppTemplateResultContract {
   category: string
 }
 
+export interface WhatsappService extends Whatsapp {}
+
 // export interface WhatsAppCloudApiService {
 //   sendText(to: number, text: string, options?: TextOptions): Promise<WhatsAppResultContract>
 
@@ -354,30 +356,3 @@ export interface WhatsAppConfig {
   graphUrl: string
   graphVersion: string
 }
-
-export type EventsList = {
-  'wa:message:text': WhatsAppMessageContract
-  'wa:message:image': WhatsAppMessageContract
-  'wa:message:document': WhatsAppMessageContract
-  'wa:message:audio': WhatsAppMessageContract
-  'wa:message:video': WhatsAppMessageContract
-  'wa:message:sticker': WhatsAppMessageContract
-  'wa:message:location': WhatsAppMessageContract
-  'wa:message:contacts': WhatsAppMessageContract
-  'wa:message:button': WhatsAppMessageContract
-  'wa:message:list': WhatsAppMessageContract
-  'wa:message:*': WhatsAppMessageContract
-
-  'wa:status:sent': WhatsAppStatusContract
-  'wa:status:delivered': WhatsAppStatusContract
-  'wa:status:read': WhatsAppStatusContract
-  'wa:status:*': WhatsAppStatusContract
-
-  'wa:*': WhatsAppMessageContract | WhatsAppStatusContract
-}
-
-/**
- * Redis service is a singleton redis instance registered
- * with the container based upon user defined config
- */
-export interface WhatsappService extends Whatsapp<WhatsAppConfig> {}
