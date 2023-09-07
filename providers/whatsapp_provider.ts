@@ -1,3 +1,12 @@
+/*
+ * @brighthustle/adonisjs-whatsapp
+ *
+ * (c) Brighthustle
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
+
 import { ApplicationService } from '@adonisjs/core/types'
 import {
   WhatsAppConfig,
@@ -118,5 +127,12 @@ export default class WhatsAppProvider {
         await emitter.emit('wa:*', data)
       }
     })
+  }
+  
+  /**
+   * Close all drivers when shutting down the app
+   */
+  async shutdown() {
+    
   }
 }

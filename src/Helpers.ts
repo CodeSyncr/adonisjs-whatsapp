@@ -1,3 +1,11 @@
+/*
+ * @brighthustle/adonisjs-whatsapp
+ *
+ * (c) Brighthustle
+ *
+ * For the full copyright and license information, please view the LICENSE
+ * file that was distributed with this source code.
+ */
 export default class Helpers {
   static isUrl(string: string) {
     const pattern = new RegExp(
