@@ -8,9 +8,9 @@
  */
 
 import app from '@adonisjs/core/services/app'
-import Whatsapp from '../src/whatsapp.js'
+import { WhatsappService } from '../src/types/main.js'
 
-let whatsapp: Whatsapp
+let whatsapp: WhatsappService
 
 /**
  * Returns a singleton instance of the Whatsapp manager from the
