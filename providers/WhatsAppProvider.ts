@@ -111,8 +111,8 @@ export default class WhatsAppProvider {
                 type,
               }
 
-              await Event.emit(`wa:message:*:${config.phone_number_id}`, data)
-              await Event.emit(`wa:message:${type}:${config.phone_number_id}`, data)
+              await Event.emit(`wa:message:*:${config.phone_number_id}`, dataWhatsapp)
+              await Event.emit(`wa:message:${type}:${config.phone_number_id}`, dataWhatsapp)
             }
 
             if (status) {
@@ -123,12 +123,12 @@ export default class WhatsAppProvider {
                 status: status.status,
               }
 
-              await Event.emit(`wa:status:${status.status}:${config.phone_number_id}`, data)
-              await Event.emit(`wa:status:*:${config.phone_number_id}`, data)
+              await Event.emit(`wa:status:${status.status}:${config.phone_number_id}`, dataWhatsapp)
+              await Event.emit(`wa:status:*:${config.phone_number_id}`, dataWhatsapp)
             }
 
-            if (data !== null) {
-              await Event.emit(`wa:*:${config.phone_number_id}`, data)
+            if (dataWhatsapp !== null) {
+              await Event.emit(`wa:*:${config.phone_number_id}`, dataWhatsapp)
             }
           })
         })
