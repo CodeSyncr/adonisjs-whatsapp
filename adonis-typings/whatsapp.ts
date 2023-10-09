@@ -357,6 +357,9 @@ declare module '@ioc:Adonis/Addons/WhatsApp' {
     connectionName: string
   }
 
+  /**
+   * Shape of database provider user builder. It must always returns [[ProviderUserContract]]
+   */
   export interface WhatsAppConfig {
     provider: string
     config?: WhatsAppDataConfig

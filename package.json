@@ -128,7 +128,7 @@
     "access": "public"
   },
   "adonisjs": {
-    "instructionsMd": "./build/instructions.md",
+    "instructions": "./build/instructions.js",
     "templates": {
       "basePath": "./build/templates",
       "config": [
