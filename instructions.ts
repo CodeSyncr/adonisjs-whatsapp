@@ -74,7 +74,7 @@ function makeMigration(
   const template = new sink.files.MustacheFile(
     projectRoot,
     migrationPath,
-    getStub('migrations/auth.txt')
+    getStub('migrations/whatsapp_config.txt')
   )
   if (template.exists()) {
     sink.logger.action('create').skipped(`${migrationPath} file already exists`)
@@ -116,7 +116,7 @@ function makeMigration(
  * Prompts user for the model name
  */
 async function getModelName(sink: typeof sinkStatic): Promise<string> {
-  return sink.getPrompt().ask('Enter model name to be used for authentication', {
+  return sink.getPrompt().ask('Enter model name to be used for whatsapp config', {
     validate(value) {
       return !!value.trim().length
     },
@@ -127,7 +127,7 @@ async function getModelName(sink: typeof sinkStatic): Promise<string> {
  * Prompts user for the table name
  */
 async function getTableName(sink: typeof sinkStatic): Promise<string> {
-  return sink.getPrompt().ask('Enter the database table name to look up users', {
+  return sink.getPrompt().ask('Enter the database table name to look up whatsapp config', {
     validate(value) {
       return !!value.trim().length
     },
