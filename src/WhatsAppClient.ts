@@ -22,7 +22,7 @@ export default class WhatsAppClient {
 
   private headers = {
     'Content-Type': 'application/json',
-    'Authorization': 'Bearer ' + this.config.accessToken,
+    'Authorization': 'Bearer ' + this.config.config!.accessToken,
   }
 
   private mandatory = {
@@ -31,7 +31,7 @@ export default class WhatsAppClient {
   }
 
   public async send(data: Record<string, any>, parse = true) {
-    const { timeout, phoneNumberId, graphUrl, graphVersion } = this.config
+    const { timeout, phoneNumberId, graphUrl, graphVersion } = this.config.config!
 
     const response = await axios({
       validateStatus: (status) => status <= 999,
@@ -51,7 +51,7 @@ export default class WhatsAppClient {
   }
 
   public async media(media: string) {
-    const { timeout, graphUrl, graphVersion } = this.config
+    const { timeout, graphUrl, graphVersion } = this.config.config!
 
     const response = await axios({
       validateStatus: (status) => status <= 999,
@@ -70,7 +70,7 @@ export default class WhatsAppClient {
   }
 
   public async upload(form: FormData) {
-    const { timeout, phoneNumberId, graphUrl, graphVersion } = this.config
+    const { timeout, phoneNumberId, graphUrl, graphVersion } = this.config.config!
 
     const response = await axios({
       validateStatus: (status) => status <= 999,
@@ -90,7 +90,7 @@ export default class WhatsAppClient {
   }
 
   public async createTemplate(data: Record<string, any>) {
-    const { timeout, whatsappBusinessId, graphUrl, graphVersion } = this.config
+    const { timeout, whatsappBusinessId, graphUrl, graphVersion } = this.config.config!
 
     const response = await axios({
       validateStatus: (status) => status <= 999,
@@ -110,7 +110,7 @@ export default class WhatsAppClient {
   }
 
   public async getTemplates(options?: GetMessageTemplatesQueryParams) {
-    const { timeout, whatsappBusinessId, graphUrl, graphVersion } = this.config
+    const { timeout, whatsappBusinessId, graphUrl, graphVersion } = this.config.config!
     let qs = ''
 
     if (options) {
@@ -141,7 +141,7 @@ export default class WhatsAppClient {
   }
 
   public async deleteTemplate(name: string): Promise<any> {
-    const { timeout, graphUrl, graphVersion, whatsappBusinessId } = this.config
+    const { timeout, graphUrl, graphVersion, whatsappBusinessId } = this.config.config!
 
     const response = await axios({
       validateStatus: (status) => status <= 999,

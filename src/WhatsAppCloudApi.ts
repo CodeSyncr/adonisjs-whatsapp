@@ -257,7 +257,7 @@ export class WhatsAppCloudApi implements WhatsAppCloudApiContract {
     const file = await axios({
       method: 'GET',
       url: response.url,
-      headers: { Authorization: 'Bearer ' + this.config.accessToken },
+      headers: { Authorization: 'Bearer ' + this.config.config!.accessToken },
       responseType: 'stream',
     })
 
