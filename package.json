@@ -122,7 +122,7 @@
   },
   "np": {
     "contents": ".",
-    "anyBranch": false
+    "anyBranch": true
   },
   "publishConfig": {
     "access": "public"
