@@ -49,8 +49,90 @@ export default class WhatsAppProvider {
       const Database = this.app.container.resolveBinding('Adonis/Lucid/Database')
       const connection = Database.connection(whatsapp.db!.connectionName)
 
-      const data = await connection.table(whatsapp.db!.tableName).select('*').fetch()
+      const data = await connection.from(whatsapp.db!.tableName).select('*')
       console.log(data)
+      if (data && data.length > 0) {
+        data.array.forEach((config: any) => {
+          // webhook verifier
+          Route.get(config!.webhook_route, (ctx: HttpContextContract) => {
+            const payload = ctx.request.qs()
+
+            if (!payload['hub.mode'] || !payload['hub.verify_token']) {
+              return ctx.response.status(400).send({ code: 400 })
+            }
+
+            if (
+              payload['hub.mode'] !== 'subscribe' ||
+              payload['hub.verify_token'] !== config!.verify_token
+            ) {
+              return ctx.response.status(403).send({ code: 403 })
+            }
+
+            Logger.info('Webhook verified!')
+            return ctx.response.status(200).send(payload['hub.challenge'])
+          })
+
+          // webhook
+          Route.post(config!.webhook_route, async (ctx: HttpContextContract) => {
+            const payload = ctx.request.body()
+
+            if (!payload.object) {
+              return ctx.response.status(403).send({ code: 403 })
+            }
+
+            const { value } = payload.entry[0].changes[0]
+            const message = !!value.messages && value.messages[0]
+            const status = !!value.statuses && value.statuses[0]
+            const contact = !!value.contacts && value.contacts[0]
+            const metadata = !!value.metadata && value.metadata
+
+            if (Number(metadata.phone_number_id) !== Number(config!.phone_number_id)) {
+              // ignore webhook if phone number id is different
+              return ctx.response.status(200).send({ code: 200 })
+            }
+
+            if (['unsupported', 'reaction', 'order', 'system'].includes(message.type)) {
+              // i don't support this, you can pull request!
+              return ctx.response.status(200).send({ code: 200 })
+            }
+
+            let dataWhatsapp: WhatsAppMessageContract | WhatsAppStatusContract | null = null
+
+            if (message) {
+              const interactive = Helpers.translateInteractive(message)
+              const type = Helpers.translateType(interactive?.type || message.type)
+
+              dataWhatsapp = {
+                from: Number(contact.wa_id),
+                sender: contact.profile.name,
+                wamid: message.id,
+                data: interactive?.data || message[message.type],
+                timestamp: Number(message.timestamp),
+                type,
+              }
+
+              await Event.emit(`wa:message:*:${config.phone_number_id}`, data)
+              await Event.emit(`wa:message:${type}:${config.phone_number_id}`, data)
+            }
+
+            if (status) {
+              dataWhatsapp = {
+                from: Number(status.recipient_id),
+                wamid: status.id,
+                timestamp: Number(status.timestamp),
+                status: status.status,
+              }
+
+              await Event.emit(`wa:status:${status.status}:${config.phone_number_id}`, data)
+              await Event.emit(`wa:status:*:${config.phone_number_id}`, data)
+            }
+
+            if (data !== null) {
+              await Event.emit(`wa:*:${config.phone_number_id}`, data)
+            }
+          })
+        })
+      }
     } else if (whatsapp.provider === 'local') {
       // webhook verifier
       Route.get(whatsapp.config!.webhookRoute, (ctx: HttpContextContract) => {
