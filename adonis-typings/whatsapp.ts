@@ -340,7 +340,7 @@ declare module '@ioc:Adonis/Addons/WhatsApp' {
     deleteTemplate(name: string): Promise<any>
   }
 
-  export interface WhatsAppConfig {
+  export interface WhatsAppDataConfig {
     webhookRoute: string
     timeout: number
     phoneNumberId: string
@@ -349,6 +349,18 @@ declare module '@ioc:Adonis/Addons/WhatsApp' {
     verifyToken: string
     graphUrl: string
     graphVersion: string
+  }
+
+  export interface WhatsAppDatabaseConfig {
+    dbName: string
+    tableName: string
+    connectionName: string
+  }
+
+  export interface WhatsAppConfig {
+    provider: string
+    config?: WhatsAppDataConfig
+    db?: WhatsAppDatabaseConfig
   }
 
   const WhatsApp: WhatsAppCloudApiContract
