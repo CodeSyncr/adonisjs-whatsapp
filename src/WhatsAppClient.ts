@@ -28,7 +28,7 @@ export default class WhatsAppClient {
 
   private headers = {
     'Content-Type': 'application/json',
-    'Authorization': 'Bearer ' + this.config.config!.accessToken,
+    'Authorization': 'Bearer ' + this.config.config?.accessToken,
   }
 
   private mandatory = {
@@ -56,7 +56,7 @@ export default class WhatsAppClient {
         .first()
       if (waResponse) {
         phoneNumberId = waResponse.phone_number_id
-        graphVersion = waResponse.graph_version
+        graphVersion = waResponse.graph_version ?? graphVersion
         dbHeaders = {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer ' + waResponse.access_token,
@@ -102,7 +102,7 @@ export default class WhatsAppClient {
         .where('id', from)
         .first()
       if (waResponse) {
-        graphVersion = waResponse.graph_version
+        graphVersion = waResponse.graph_version ?? graphVersion
         dbHeaders = {
           'Content-Type': 'application/json',
           'Authorization': 'Bearer ' + waResponse.access_token,
@@ -147,7 +147,7 @@ export default class WhatsAppClient {
         .where('id', from)
         .first()
       if (waResponse) {
-        graphVersion = waResponse.graph_version
+        graphVersion = waResponse.graph_version ?? graphVersion
         phoneNumberId = waResponse.phone_number_id
         dbHeaders = {
           ...form.getHeaders(),
@@ -195,7 +195,7 @@ export default class WhatsAppClient {
         .where('id', data.from)
         .first()
       if (waResponse) {
-        graphVersion = waResponse.graph_version
+        graphVersion = waResponse.graph_version ?? graphVersion
         whatsappBusinessId = waResponse.whatsapp_business_id
         dbHeaders = {
           'Content-Type': 'application/json',
@@ -242,7 +242,7 @@ export default class WhatsAppClient {
         .where('id', from)
         .first()
       if (waResponse) {
-        graphVersion = waResponse.graph_version
+        graphVersion = waResponse.graph_version ?? graphVersion
         whatsappBusinessId = waResponse.whatsapp_business_id
         dbHeaders = {
           'Content-Type': 'application/json',
@@ -301,7 +301,7 @@ export default class WhatsAppClient {
         .where('id', from)
         .first()
       if (waResponse) {
-        graphVersion = waResponse.graph_version
+        graphVersion = waResponse.graph_version ?? graphVersion
         whatsappBusinessId = waResponse.whatsapp_business_id
         dbHeaders = {
           'Content-Type': 'application/json',

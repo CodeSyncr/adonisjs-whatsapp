@@ -54,9 +54,13 @@ export default class WhatsAppProvider {
               .select('*')
               .where('phone_number_id', phoneNumberId)
               .first()
-            verifyToken = data.verify_token
+            if (data) {
+              verifyToken = data.verify_token
+            } else {
+              return ctx.response.status(404).send({ code: 403, message: 'Invalid phone id' })
+            }
           } catch (error) {
-            console.log(error)
+            // return ctx.response.status(500).send({ code: 500, message: 'Invalid phone id', error })
           }
         } else {
           verifyToken = whatsapp.config!.verifyToken
