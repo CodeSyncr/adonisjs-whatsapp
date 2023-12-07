@@ -7,7 +7,6 @@ import WhatsAppClient from './WhatsAppClient'
 import { EmitterContract } from '@ioc:Adonis/Core/Event'
 import { DriveManagerContract } from '@ioc:Adonis/Core/Drive'
 import { MultipartFileContract } from '@ioc:Adonis/Core/BodyParser'
-import Database from '@ioc:Adonis/Lucid/Database'
 
 import {
   ButtonsOptions,
