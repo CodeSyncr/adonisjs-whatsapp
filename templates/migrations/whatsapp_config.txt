@@ -1,0 +1,22 @@
+import BaseSchema from '@ioc:Adonis/Lucid/Schema'
+
+export default class extends BaseSchema {
+  protected tableName = '{{ whatsappTableName }}'
+
+  public async up() {
+    this.schema.createTable(this.tableName, (table) => {
+      table.increments('id').primary()
+      table.string('phone_number_id').notNullable().unique()
+      table.string('whatsapp_business_id').notNullable().unique()
+      table.string('access_token').notNullable()
+      table.string('verify_token').notNullable()
+      table.string('graph_version).nullable().defaultTo(null)
+      
+      table.timestamps()
+    })
+  }
+
+  public async down() {
+    this.schema.dropTable(this.tableName)
+  }
+}

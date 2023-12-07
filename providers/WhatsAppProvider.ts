@@ -11,16 +11,7 @@ import {
 export default class WhatsAppProvider {
   public static needsApplication = true
 
-  private config = {
-    webhookRoute: '/webhook/whatsapp',
-    timeout: 60,
-    phoneNumberId: null,
-    whatsappBusinessId: null,
-    accessToken: null,
-    verifyToken: null,
-    graphUrl: 'https://graph.facebook.com',
-    graphVersion: 'v16.0',
-  }
+  private config = {}
 
   constructor(protected app: ApplicationContract) {}
 
@@ -28,16 +19,17 @@ export default class WhatsAppProvider {
     this.app.container.singleton('Adonis/Addons/WhatsApp', () => {
       const drive = this.app.container.resolveBinding('Adonis/Core/Drive')
       const emitter = this.app.container.resolveBinding('Adonis/Core/Event')
+      const database = this.app.container.resolveBinding('Adonis/Lucid/Database')
 
       const config = this.app.container
         .resolveBinding('Adonis/Core/Config')
         .get('whatsapp', this.config)
 
-      return new WhatsAppCloudApi(config, drive, emitter)
+      return new WhatsAppCloudApi(config, drive, emitter, database)
     })
   }
 
-  public boot() {
+  public async boot() {
     const Route = this.app.container.use('Adonis/Core/Route')
     const Event = this.app.container.use('Adonis/Core/Event')
     const Config = this.app.container.use('Adonis/Core/Config')
@@ -46,82 +38,109 @@ export default class WhatsAppProvider {
     const whatsapp: WhatsAppConfig = Config.get('whatsapp', this.config)
 
     // webhook verifier
-    Route.get(whatsapp.webhookRoute, (ctx: HttpContextContract) => {
-      const payload = ctx.request.qs()
+    Route.get(
+      `${whatsapp.config!.webhookRoute}/:phoneNumberId`,
+      async (ctx: HttpContextContract) => {
+        const payload = ctx.request.qs()
+        const { phoneNumberId } = ctx.request.params()
+        let verifyToken: string | undefined | null = null
 
-      if (!payload['hub.mode'] || !payload['hub.verify_token']) {
-        return ctx.response.status(400).send({ code: 400 })
+        if (whatsapp.provider === 'db') {
+          const Database = this.app.container.resolveBinding('Adonis/Lucid/Database')
+          const connection = Database.connection(whatsapp.db!.connectionName)
+          try {
+            const data = await connection
+              .from(whatsapp.db!.tableName)
+              .select('*')
+              .where('phone_number_id', phoneNumberId)
+              .first()
+            if (data) {
+              verifyToken = data.verify_token
+            } else {
+              return ctx.response.status(404).send({ code: 403, message: 'Invalid phone id' })
+            }
+          } catch (error) {
+            // return ctx.response.status(500).send({ code: 500, message: 'Invalid phone id', error })
+          }
+        } else {
+          verifyToken = whatsapp.config!.verifyToken
+        }
+
+        if (!payload['hub.mode'] || !payload['hub.verify_token']) {
+          return ctx.response.status(400).send({ code: 400 })
+        }
+
+        if (payload['hub.mode'] !== 'subscribe' || payload['hub.verify_token'] !== verifyToken) {
+          return ctx.response.status(403).send({ code: 403 })
+        }
+
+        Logger.info('Webhook verified!')
+        return ctx.response.status(200).send(payload['hub.challenge'])
       }
-
-      if (
-        payload['hub.mode'] !== 'subscribe' ||
-        payload['hub.verify_token'] !== whatsapp.verifyToken
-      ) {
-        return ctx.response.status(403).send({ code: 403 })
-      }
-
-      Logger.info('Webhook verified!')
-      return ctx.response.status(200).send(payload['hub.challenge'])
-    })
+    )
 
     // webhook
-    Route.post(whatsapp.webhookRoute, async (ctx: HttpContextContract) => {
-      const payload = ctx.request.body()
+    Route.post(
+      `${whatsapp.config!.webhookRoute}/:phoneNumberId`,
+      async (ctx: HttpContextContract) => {
+        const payload = ctx.request.body()
+        const { phoneNumberId } = ctx.request.params()
 
-      if (!payload.object) {
-        return ctx.response.status(403).send({ code: 403 })
-      }
-
-      const { value } = payload.entry[0].changes[0]
-      const message = !!value.messages && value.messages[0]
-      const status = !!value.statuses && value.statuses[0]
-      const contact = !!value.contacts && value.contacts[0]
-      const metadata = !!value.metadata && value.metadata
-
-      if (Number(metadata.phone_number_id) !== Number(whatsapp.phoneNumberId)) {
-        // ignore webhook if phone number id is different
-        return ctx.response.status(200).send({ code: 200 })
-      }
-
-      if (['unsupported', 'reaction', 'order', 'system'].includes(message.type)) {
-        // i don't support this, you can pull request!
-        return ctx.response.status(200).send({ code: 200 })
-      }
-
-      let data: WhatsAppMessageContract | WhatsAppStatusContract | null = null
-
-      if (message) {
-        const interactive = Helpers.translateInteractive(message)
-        const type = Helpers.translateType(interactive?.type || message.type)
-
-        data = {
-          from: Number(contact.wa_id),
-          sender: contact.profile.name,
-          wamid: message.id,
-          data: interactive?.data || message[message.type],
-          timestamp: Number(message.timestamp),
-          type,
+        if (!payload.object) {
+          return ctx.response.status(403).send({ code: 403 })
         }
 
-        await Event.emit('wa:message:*', data)
-        await Event.emit(`wa:message:${type}`, data)
-      }
+        const { value } = payload.entry[0].changes[0]
+        const message = !!value.messages && value.messages[0]
+        const status = !!value.statuses && value.statuses[0]
+        const contact = !!value.contacts && value.contacts[0]
+        const metadata = !!value.metadata && value.metadata
 
-      if (status) {
-        data = {
-          from: Number(status.recipient_id),
-          wamid: status.id,
-          timestamp: Number(status.timestamp),
-          status: status.status,
+        if (Number(metadata.phone_number_id) !== Number(phoneNumberId)) {
+          // ignore webhook if phone number id is different
+          return ctx.response.status(200).send({ code: 200 })
         }
 
-        await Event.emit(`wa:status:${status.status}`, data)
-        await Event.emit('wa:status:*', data)
-      }
+        if (['unsupported', 'reaction', 'order', 'system'].includes(message.type)) {
+          // i don't support this, you can pull request!
+          return ctx.response.status(200).send({ code: 200 })
+        }
 
-      if (data !== null) {
-        await Event.emit('wa:*', data)
+        let data: WhatsAppMessageContract | WhatsAppStatusContract | null = null
+
+        if (message) {
+          const interactive = Helpers.translateInteractive(message)
+          const type = Helpers.translateType(interactive?.type || message.type)
+
+          data = {
+            from: Number(contact.wa_id),
+            sender: contact.profile.name,
+            wamid: message.id,
+            data: interactive?.data || message[message.type],
+            timestamp: Number(message.timestamp),
+            type,
+          }
+
+          await Event.emit(`wa:message:*:${phoneNumberId}`, data)
+          await Event.emit(`wa:message:${type}:${phoneNumberId}`, data)
+        }
+
+        if (status) {
+          data = {
+            from: Number(status.recipient_id),
+            wamid: status.id,
+            timestamp: Number(status.timestamp),
+            status: status.status,
+          }
+
+          await Event.emit(`wa:status:${status.status}:${phoneNumberId}`, data)
+          await Event.emit(`wa:status:*:${phoneNumberId}`, data)
+        }
+
+        if (data !== null) {
+          await Event.emit(`wa:*:${phoneNumberId}`, data)
+        }
       }
-    })
+    )
   }
 }

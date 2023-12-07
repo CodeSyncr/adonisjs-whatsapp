@@ -1,6 +1,6 @@
 {
   "name": "@brighthustle/adonisjs-whatsapp",
-  "version": "1.0.4",
+  "version": "1.0.5",
   "description": "Connect your WhatsApp Cloud API with AdonisJS",
   "main": "build/providers/WhatsAppProvider.js",
   "scripts": {
@@ -42,6 +42,7 @@
   "homepage": "https://github.com/CodeSyncr/adonisjs-whatsapp#readme",
   "devDependencies": {
     "@adonisjs/core": "^5.9.0",
+    "@adonisjs/lucid": "^18.2.0",
     "@adonisjs/mrm-preset": "^5.0.3",
     "@adonisjs/require-ts": "^2.0.13",
     "@adonisjs/sink": "^5.4.2",
@@ -67,7 +68,8 @@
     "mime-types": "^2.1.35"
   },
   "peerDependencies": {
-    "@adonisjs/core": "^5.9.0"
+    "@adonisjs/core": "^5.9.0",
+    "@adonisjs/lucid": "^18.0.0"
   },
   "mrmConfig": {
     "core": false,
@@ -122,32 +124,22 @@
   },
   "np": {
     "contents": ".",
-    "anyBranch": false
+    "anyBranch": true
   },
   "publishConfig": {
     "access": "public"
   },
   "adonisjs": {
+    "instructions": "./build/instructions.js",
     "instructionsMd": "./build/instructions.md",
     "templates": {
       "basePath": "./build/templates",
-      "config": [
-        {
-          "src": "config/whatsapp.txt",
-          "dest": "whatsapp"
-        }
-      ],
       "start": [
         {
           "src": "start/whatsapp.txt",
           "dest": "whatsapp"
         }
       ]
-    },
-    "env": {
-      "WABA_ID": "",
-      "WABA_TOKEN": "",
-      "WABA_VERIFY": ""
     },
     "preloads": [
       "./start/whatsapp"

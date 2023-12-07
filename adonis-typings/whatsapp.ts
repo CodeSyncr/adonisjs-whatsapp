@@ -250,42 +250,65 @@ declare module '@ioc:Adonis/Addons/WhatsApp' {
   }
 
   export interface WhatsAppCloudApiContract {
-    sendText(to: number, text: string, options?: TextOptions): Promise<WhatsAppResultContract>
+    sendText(
+      to: number,
+      text: string,
+      options?: TextOptions,
+      from?: number
+    ): Promise<WhatsAppResultContract>
 
-    sendImage(to: number, media: string, options?: MediaOptions): Promise<WhatsAppResultContract>
+    sendImage(
+      to: number,
+      media: string,
+      options?: MediaOptions,
+      from?: number
+    ): Promise<WhatsAppResultContract>
 
     sendDocument(
       to: number,
       media: string,
-      options?: DocumentOptions
+      options?: DocumentOptions,
+      from?: number
     ): Promise<WhatsAppResultContract>
 
-    sendAudio(to: number, media: string): Promise<WhatsAppResultContract>
+    sendAudio(to: number, media: string, from?: number): Promise<WhatsAppResultContract>
 
-    sendVideo(to: number, media: string, options?: MediaOptions): Promise<WhatsAppResultContract>
+    sendVideo(
+      to: number,
+      media: string,
+      options?: MediaOptions,
+      from?: number
+    ): Promise<WhatsAppResultContract>
 
-    sendSticker(to: number, media: string): Promise<WhatsAppResultContract>
+    sendSticker(to: number, media: string, from?: number): Promise<WhatsAppResultContract>
 
     sendLocation(
       to: number,
       coordinate: CoordinateOptions,
-      options?: LocationOptions
+      options?: LocationOptions,
+      from?: number
     ): Promise<WhatsAppResultContract>
 
     sendTemplate(
       to: number,
       template: string,
       language: string,
-      components: ComponentOptions[]
+      components: ComponentOptions[],
+      from?: number
     ): Promise<WhatsAppResultContract>
 
-    sendContact(to: number, contacts: ContactOptions[]): Promise<WhatsAppResultContract>
+    sendContact(
+      to: number,
+      contacts: ContactOptions[],
+      from?: number
+    ): Promise<WhatsAppResultContract>
 
     sendButtons(
       to: number,
       text: string,
       buttons: ButtonsOptions,
-      options?: InteractiveOptions
+      options?: InteractiveOptions,
+      from?: number
     ): Promise<WhatsAppResultContract>
 
     sendList(
@@ -293,24 +316,25 @@ declare module '@ioc:Adonis/Addons/WhatsApp' {
       text: string,
       button: string,
       sections: SectionOptions[],
-      options?: InteractiveOptions
+      options?: InteractiveOptions,
+      from?: number
     ): Promise<WhatsAppResultContract>
 
-    markAsRead(wamid: string): Promise<boolean>
+    markAsRead(wamid: string, from?: number): Promise<boolean>
 
     on(
       event:
-        | 'message:text'
-        | 'message:image'
-        | 'message:document'
-        | 'message:audio'
-        | 'message:video'
-        | 'message:sticker'
-        | 'message:location'
-        | 'message:contacts'
-        | 'message:button'
-        | 'message:list'
-        | 'message:*',
+        | `message:text:${string}`
+        | `message:image:${string}`
+        | `message:document:${string}`
+        | `message:audio:${string}`
+        | `message:video:${string}`
+        | `message:sticker:${string}`
+        | `message:location:${string}`
+        | `message:contacts:${string}`
+        | `message:button:${string}`
+        | `message:list:${string}`
+        | `message:*:${string}`,
       handler: (message: WhatsAppMessageContract) => void
     ): void
 
@@ -324,31 +348,47 @@ declare module '@ioc:Adonis/Addons/WhatsApp' {
       handler: (message: WhatsAppMessageContract | WhatsAppStatusContract) => void
     ): void
 
-    downloadMedia(media: string, options?: DownloadOptions): Promise<string | false>
+    downloadMedia(media: string, options?: DownloadOptions, from?: number): Promise<string | false>
 
-    uploadMedia(source: string | MultipartFileContract): Promise<string | false>
+    uploadMedia(source: string | MultipartFileContract, from?: number): Promise<string | false>
 
     createTemplate(
       category: TemplateCategory,
       name: string,
       language: string,
-      components: TemplateComponent[]
+      components: TemplateComponent[],
+      from?: number
     ): Promise<WhatsAppTemplateResultContract>
 
-    getTemplates(options?: GetMessageTemplatesQueryParams): Promise<any>
+    getTemplates(options?: GetMessageTemplatesQueryParams, from?: number): Promise<any>
 
-    deleteTemplate(name: string): Promise<any>
+    deleteTemplate(name: string, from?: number): Promise<any>
   }
 
-  export interface WhatsAppConfig {
+  export interface WhatsAppDataConfig {
     webhookRoute: string
     timeout: number
-    phoneNumberId: string
-    whatsappBusinessId: string
-    accessToken: string
-    verifyToken: string
+    phoneNumberId?: string
+    whatsappBusinessId?: string
+    accessToken?: string
+    verifyToken?: string
     graphUrl: string
     graphVersion: string
+  }
+
+  export interface WhatsAppDatabaseConfig {
+    dbName: string
+    tableName: string
+    connectionName: string
+  }
+
+  /**
+   * Shape of database provider user builder. It must always returns [[ProviderUserContract]]
+   */
+  export interface WhatsAppConfig {
+    provider: string
+    config: WhatsAppDataConfig
+    db?: WhatsAppDatabaseConfig
   }
 
   const WhatsApp: WhatsAppCloudApiContract

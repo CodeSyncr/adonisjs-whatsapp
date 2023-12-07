@@ -1,0 +1,11 @@
+config: {
+  webhookRoute: '/webhook/whatsapp',
+  timeout: 60_000,
+  graphUrl: 'https://graph.facebook.com',
+  graphVersion: 'v16.0',
+},
+db: {
+  dbName: Env.get('PG_DB_NAME'),
+  tableName: '{{{ whatsappTableName }}}',
+  connectionName: Env.get('DB_CONNECTION', 'mysql'),
+},
