@@ -300,17 +300,17 @@ declare module '@ioc:Adonis/Addons/WhatsApp' {
 
     on(
       event:
-        | `message:text:${string}`
-        | `message:image:${string}`
-        | `message:document:${string}`
-        | `message:audio:${string}`
-        | `message:video:${string}`
-        | `message:sticker:${string}`
-        | `message:location:${string}`
-        | `message:contacts:${string}`
-        | `message:button:${string}`
-        | `message:list:${string}`
-        | `message:*:${string}`,
+        | `wa:message:text:${string}`
+        | `wa:message:image:${string}`
+        | `wa:message:document:${string}`
+        | `wa:message:audio:${string}`
+        | `wa:message:video:${string}`
+        | `wa:message:sticker:${string}`
+        | `wa:message:location:${string}`
+        | `wa:message:contacts:${string}`
+        | `wa:message:button:${string}`
+        | `wa:message:list:${string}`
+        | `wa:message:*:${string}`,
       handler: (message: WhatsAppMessageContract) => void
     ): void
 
