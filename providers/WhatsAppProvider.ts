@@ -37,23 +37,42 @@ export default class WhatsAppProvider {
     const whatsapp: WhatsAppConfig = Config.get('whatsapp', this.config)
 
     // webhook verifier
-    Route.get(`${whatsapp.config!.webhookRoute}/:phoneNumberId`, (ctx: HttpContextContract) => {
-      const payload = ctx.request.qs()
+    Route.get(
+      `${whatsapp.config!.webhookRoute}/:phoneNumberId`,
+      async (ctx: HttpContextContract) => {
+        const payload = ctx.request.qs()
+        const { phoneNumberId } = ctx.request.params()
+        let verifyToken: string | undefined | null = null
 
-      if (!payload['hub.mode'] || !payload['hub.verify_token']) {
-        return ctx.response.status(400).send({ code: 400 })
+        if (whatsapp.provider === 'db') {
+          const Database = this.app.container.resolveBinding('Adonis/Lucid/Database')
+          const connection = Database.connection(whatsapp.db!.connectionName)
+          try {
+            const data = await connection
+              .from(whatsapp.db!.tableName)
+              .select('*')
+              .where('phone_number_id', phoneNumberId)
+              .first()
+            verifyToken = data.verify_token
+          } catch (error) {
+            console.log(error)
+          }
+        } else {
+          verifyToken = whatsapp.config!.verifyToken
+        }
+
+        if (!payload['hub.mode'] || !payload['hub.verify_token']) {
+          return ctx.response.status(400).send({ code: 400 })
+        }
+
+        if (payload['hub.mode'] !== 'subscribe' || payload['hub.verify_token'] !== verifyToken) {
+          return ctx.response.status(403).send({ code: 403 })
+        }
+
+        Logger.info('Webhook verified!')
+        return ctx.response.status(200).send(payload['hub.challenge'])
       }
-
-      if (
-        payload['hub.mode'] !== 'subscribe' ||
-        payload['hub.verify_token'] !== whatsapp.config!.verifyToken
-      ) {
-        return ctx.response.status(403).send({ code: 403 })
-      }
-
-      Logger.info('Webhook verified!')
-      return ctx.response.status(200).send(payload['hub.challenge'])
-    })
+    )
 
     // webhook
     Route.post(
