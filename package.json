@@ -1,6 +1,6 @@
 {
   "name": "@brighthustle/adonisjs-whatsapp",
-  "version": "1.0.5-26",
+  "version": "1.0.5-27",
   "description": "Connect your WhatsApp Cloud API with AdonisJS",
   "main": "build/providers/WhatsAppProvider.js",
   "scripts": {
