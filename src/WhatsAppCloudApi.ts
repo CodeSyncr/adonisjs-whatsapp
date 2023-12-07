@@ -1,5 +1,4 @@
 import * as fs from 'fs'
-import axios from 'axios'
 import mime from 'mime-types'
 import Helpers from './Helpers'
 import FormData from 'form-data'
