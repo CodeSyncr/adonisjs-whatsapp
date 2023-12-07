@@ -11,23 +11,26 @@ type InstructionsState = {
   whatsappTableName: string
   whatsappSchemaName: string
 
-  provider: 'lucid' | 'database'
+  provider: 'lucid' | 'local'
 }
 
-// const CONTRACTS_PARTIALS_BASE = './contract/partials'
-
-// const CONFIG_PARTIALS_BASE = './config/partials'
+const CONFIG_PARTIALS_BASE = './config/partials'
 
 /**
  * Prompt choices for the provider selection
  */
-// const PROVIDER_PROMPT_CHOICES = [
-//   {
-//     name: 'lucid' as const,
-//     message: 'Lucid',
-//     hint: ' (Uses Data Models)',
-//   },
-// ]
+const PROVIDER_PROMPT_CHOICES = [
+  {
+    name: 'lucid' as const,
+    message: 'Lucid',
+    hint: ' (Uses Data Models)',
+  },
+  {
+    name: 'local' as const,
+    message: 'Local',
+    hint: ' (Uses ENV variable)',
+  },
+]
 
 /**
  * Returns absolute path to the stub relative from the templates
@@ -88,29 +91,29 @@ function makeMigration(
 /**
  * Makes the auth config file
  */
-// function makeConfig(
-//   projectRoot: string,
-//   app: ApplicationContract,
-//   sink: typeof sinkStatic,
-//   state: InstructionsState
-// ) {
-//   const configDirectory = app.directoriesMap.get('config') || 'config'
-//   const configPath = join(configDirectory, 'whatsapp.ts')
+function makeConfig(
+  projectRoot: string,
+  app: ApplicationContract,
+  sink: typeof sinkStatic,
+  state: InstructionsState
+) {
+  const configDirectory = app.directoriesMap.get('config') || 'config'
+  const configPath = join(configDirectory, 'whatsapp.ts')
 
-//   const template = new sink.files.MustacheFile(
-//     projectRoot,
-//     configPath,
-//     getStub('config/whatsapp.txt')
-//   )
-//   template.overwrite = true
+  const template = new sink.files.MustacheFile(
+    projectRoot,
+    configPath,
+    getStub('config/whatsapp.txt')
+  )
+  template.overwrite = true
 
-//   const partials: any = {
-//     provider: getStub(CONFIG_PARTIALS_BASE, `whatsapp-provider-${state.provider}.txt`),
-//   }
+  const partials: any = {
+    provider: getStub(CONFIG_PARTIALS_BASE, `whatsapp-${state.provider}.txt`),
+  }
 
-//   template.apply(state).partials(partials).commit()
-//   sink.logger.action('create').succeeded(configPath)
-// }
+  template.apply(state).partials(partials).commit()
+  sink.logger.action('create').succeeded(configPath)
+}
 
 /**
  * Prompts user for the model name
@@ -126,13 +129,13 @@ async function getModelName(sink: typeof sinkStatic): Promise<string> {
 /**
  * Prompts user for the table name
  */
-async function getTableName(sink: typeof sinkStatic): Promise<string> {
-  return sink.getPrompt().ask('Enter the database table name to look up whatsapp config', {
-    validate(value) {
-      return !!value.trim().length
-    },
-  })
-}
+// async function getTableName(sink: typeof sinkStatic): Promise<string> {
+//   return sink.getPrompt().ask('Enter the database table name to look up whatsapp config', {
+//     validate(value) {
+//       return !!value.trim().length
+//     },
+//   })
+// }
 
 /**
  * Prompts user for the table name
@@ -146,13 +149,13 @@ async function getMigrationConsent(sink: typeof sinkStatic, tableName: string): 
 /**
  * Prompts user to select the provider
  */
-// async function getProvider(sink: typeof sinkStatic) {
-//   return sink.getPrompt().choice('Select provider for whatsapp config', PROVIDER_PROMPT_CHOICES, {
-//     validate(choice) {
-//       return choice && choice.length ? true : 'Select the provider for finding users'
-//     },
-//   })
-// }
+async function getProvider(sink: typeof sinkStatic) {
+  return sink.getPrompt().choice('Select provider for whatsapp config', PROVIDER_PROMPT_CHOICES, {
+    validate(choice) {
+      return choice && choice.length ? true : 'Select the provider for configuration of whatsapp'
+    },
+  })
+}
 
 /**
  * Instructions to be executed when setting up the package.
@@ -168,7 +171,7 @@ export default async function instructions(
     provider: 'lucid',
   }
 
-  //   state.provider = await getProvider(sink)
+  state.provider = await getProvider(sink)
 
   /**
    * Make model when provider is lucid otherwise prompt for the database
@@ -180,35 +183,34 @@ export default async function instructions(
     state.whatsappTableName = string.pluralize(string.snakeCase(state.modelName))
     state.modelReference = string.camelCase(string.singularize(state.modelName))
     state.modelNamespace = `${app.namespacesMap.get('models') || 'App/Models'}/${state.modelName}`
-  } else {
-    state.whatsappTableName = await getTableName(sink)
+
+    const migrationConsent = await getMigrationConsent(sink, state.whatsappTableName)
+
+    /**
+     * Pascal case
+     */
+    const camelCaseSchemaName = string.camelCase(`${state.whatsappTableName}_schema`)
+    state.whatsappSchemaName = `${camelCaseSchemaName
+      .charAt(0)
+      .toUpperCase()}${camelCaseSchemaName.slice(1)}`
+
+    /**
+     * Make model when prompted for it
+     */
+    if (state.modelName) {
+      makeModel(projectRoot, app, sink, state)
+    }
+
+    /**
+     * Make users migration file
+     */
+    if (migrationConsent) {
+      makeMigration(projectRoot, app, sink, state)
+    }
   }
 
-  const migrationConsent = await getMigrationConsent(sink, state.whatsappTableName)
-
-  /**
-   * Pascal case
-   */
-  const camelCaseSchemaName = string.camelCase(`${state.whatsappTableName}_schema`)
-  state.whatsappSchemaName = `${camelCaseSchemaName
-    .charAt(0)
-    .toUpperCase()}${camelCaseSchemaName.slice(1)}`
-
-  /**
-   * Make model when prompted for it
-   */
-  if (state.modelName) {
-    makeModel(projectRoot, app, sink, state)
-  }
-
-  /**
-   * Make users migration file
-   */
-  if (migrationConsent) {
-    makeMigration(projectRoot, app, sink, state)
-  }
   /**
    * Make config file
    */
-  //   makeConfig(projectRoot, app, sink, state)
+  makeConfig(projectRoot, app, sink, state)
 }

@@ -42,6 +42,7 @@
   "homepage": "https://github.com/CodeSyncr/adonisjs-whatsapp#readme",
   "devDependencies": {
     "@adonisjs/core": "^5.9.0",
+    "@adonisjs/lucid": "^18.2.0",
     "@adonisjs/mrm-preset": "^5.0.3",
     "@adonisjs/require-ts": "^2.0.13",
     "@adonisjs/sink": "^5.4.2",
@@ -67,7 +68,8 @@
     "mime-types": "^2.1.35"
   },
   "peerDependencies": {
-    "@adonisjs/core": "^5.9.0"
+    "@adonisjs/core": "^5.9.0",
+    "@adonisjs/lucid": "^18.0.0"
   },
   "mrmConfig": {
     "core": false,
@@ -131,12 +133,6 @@
     "instructions": "./build/instructions.js",
     "templates": {
       "basePath": "./build/templates",
-      "config": [
-        {
-          "src": "config/whatsapp.txt",
-          "dest": "whatsapp"
-        }
-      ],
       "start": [
         {
           "src": "start/whatsapp.txt",
@@ -145,6 +141,7 @@
       ]
     },
     "env": {
+      "WABA_PHONE_ID": "",
       "WABA_ID": "",
       "WABA_TOKEN": "",
       "WABA_VERIFY": ""

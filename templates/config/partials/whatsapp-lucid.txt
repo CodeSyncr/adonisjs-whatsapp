@@ -2,16 +2,17 @@ import Env from '@ioc:Adonis/Core/Env'
 import { WhatsAppConfig } from '@ioc:Adonis/Addons/WhatsApp'
 
 const whatsappConfig: WhatsAppConfig = {
-  provider: 'local',
+  provider: 'db',
   config: {
     webhookRoute: '/webhook/whatsapp',
     timeout: 60_000,
-    phoneNumberId: Env.get('WABA_PHONE_ID'),
-    whatsappBusinessId: Env.get('WABA_ID'),
-    accessToken: Env.get('WABA_TOKEN'),
-    verifyToken: Env.get('WABA_VERIFY'),
     graphUrl: 'https://graph.facebook.com',
     graphVersion: 'v16.0',
+  },
+  db: {
+    dbName: Env.get('PG_DB_NAME'),
+    tableName: '{{{ whatsappTableName }}}',
+    connectionName: Env.get('DB_CONNECTION', 'mysql'),
   },
 }
 

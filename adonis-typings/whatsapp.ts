@@ -343,10 +343,10 @@ declare module '@ioc:Adonis/Addons/WhatsApp' {
   export interface WhatsAppDataConfig {
     webhookRoute: string
     timeout: number
-    phoneNumberId: string
-    whatsappBusinessId: string
-    accessToken: string
-    verifyToken: string
+    phoneNumberId?: string
+    whatsappBusinessId?: string
+    accessToken?: string
+    verifyToken?: string
     graphUrl: string
     graphVersion: string
   }
@@ -362,7 +362,7 @@ declare module '@ioc:Adonis/Addons/WhatsApp' {
    */
   export interface WhatsAppConfig {
     provider: string
-    config?: WhatsAppDataConfig
+    config: WhatsAppDataConfig
     db?: WhatsAppDatabaseConfig
   }
 

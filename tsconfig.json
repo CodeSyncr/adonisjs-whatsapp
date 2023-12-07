@@ -3,6 +3,7 @@
   "compilerOptions": {
     "types": [
       "@adonisjs/core",
+      "@adonisjs/lucid",
       "@types/node"
     ],
     "experimentalDecorators": true,
