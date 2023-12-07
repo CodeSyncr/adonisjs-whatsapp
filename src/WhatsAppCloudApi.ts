@@ -29,6 +29,7 @@ import {
   WhatsAppResultContract,
   WhatsAppTemplateResultContract,
 } from '@ioc:Adonis/Addons/WhatsApp'
+import { DatabaseContract } from '@ioc:Adonis/Lucid/Database'
 
 export class WhatsAppCloudApi implements WhatsAppCloudApiContract {
   private client: WhatsAppClient
@@ -36,9 +37,10 @@ export class WhatsAppCloudApi implements WhatsAppCloudApiContract {
   constructor(
     private config: WhatsAppConfig,
     private drive: DriveManagerContract,
-    private emitter: EmitterContract
+    private emitter: EmitterContract,
+    private db: DatabaseContract
   ) {
-    this.client = new WhatsAppClient(this.config)
+    this.client = new WhatsAppClient(this.config, this.db)
   }
 
   public async sendText(

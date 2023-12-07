@@ -19,12 +19,13 @@ export default class WhatsAppProvider {
     this.app.container.singleton('Adonis/Addons/WhatsApp', () => {
       const drive = this.app.container.resolveBinding('Adonis/Core/Drive')
       const emitter = this.app.container.resolveBinding('Adonis/Core/Event')
+      const database = this.app.container.resolveBinding('Adonis/Lucid/Database')
 
       const config = this.app.container
         .resolveBinding('Adonis/Core/Config')
         .get('whatsapp', this.config)
 
-      return new WhatsAppCloudApi(config, drive, emitter)
+      return new WhatsAppCloudApi(config, drive, emitter, database)
     })
   }
 

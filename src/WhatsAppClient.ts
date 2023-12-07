@@ -5,7 +5,7 @@ import {
   WhatsAppConfig,
   WhatsAppResultContract,
 } from '@ioc:Adonis/Addons/WhatsApp'
-import Database from '@ioc:Adonis/Lucid/Database'
+import { DatabaseContract, QueryClientContract } from '@ioc:Adonis/Lucid/Database'
 
 type WhatsAppResult = {
   messaging_product: 'whatsapp'
@@ -19,7 +19,12 @@ type WhatsAppResult = {
 }
 
 export default class WhatsAppClient {
-  constructor(private config: WhatsAppConfig) {}
+  /**
+   * Custom connection or query client
+   */
+  private connection?: string | QueryClientContract
+
+  constructor(private config: WhatsAppConfig, private db: DatabaseContract) {}
 
   private headers = {
     'Content-Type': 'application/json',
@@ -38,7 +43,13 @@ export default class WhatsAppClient {
       if (!data.from) {
         throw new Error('From (id for whatsapp db) is required as db config is enabled.')
       }
-      const waResponse = await Database.query()
+
+      if (!this.connection) {
+        return this.db.connection(this.config.db.connectionName)
+      }
+
+      const waResponse = await this.db
+        .query()
         .select('*')
         .from(this.config.db!.tableName)
         .where('id', data.from)
