@@ -266,7 +266,10 @@ export class WhatsAppCloudApi implements WhatsAppCloudApiContract {
     })
   }
 
-  public async uploadMedia(source: string | MultipartFileContract): Promise<string | false> {
+  public async uploadMedia(
+    source: string | MultipartFileContract,
+    from?: number
+  ): Promise<string | false> {
     source = typeof source !== 'string' ? (source.tmpPath as string) : source
 
     const form = new FormData()
@@ -274,11 +277,15 @@ export class WhatsAppCloudApi implements WhatsAppCloudApiContract {
     form.append('type', mime.contentType(source))
     form.append('file', fs.readFileSync(source), { filename: source })
 
-    const response = await this.client.upload(form)
+    const response = await this.client.upload(form, from)
     return response.id || false
   }
 
-  public async downloadMedia(media: string, options?: DownloadOptions): Promise<string | false> {
+  public async downloadMedia(
+    media: string,
+    options?: DownloadOptions,
+    from?: number
+  ): Promise<string | false> {
     const response = await this.client.media(media)
     if (!response.url || !response.mime_type) return false
 
@@ -286,12 +293,7 @@ export class WhatsAppCloudApi implements WhatsAppCloudApiContract {
     const filename = options?.filename || media + (ext ? '.' + ext : '')
     const filepath = options?.folder ? options.folder + '/' + filename : filename
 
-    const file = await axios({
-      method: 'GET',
-      url: response.url,
-      headers: { Authorization: 'Bearer ' + this.config.config!.accessToken },
-      responseType: 'stream',
-    })
+    const file = await this.client.download(response.url, from)
 
     if (options?.disk) {
       const disk = this.drive.use(options.disk) as DriveManagerContract
@@ -307,21 +309,23 @@ export class WhatsAppCloudApi implements WhatsAppCloudApiContract {
     category: TemplateCategory,
     name: string,
     language: string,
-    components: TemplateComponent[]
+    components: TemplateComponent[],
+    from?: number
   ): Promise<WhatsAppTemplateResultContract> {
     return await this.client.createTemplate({
       category,
       name,
       language,
       components,
+      from,
     })
   }
 
-  public async getTemplates(options?: GetMessageTemplatesQueryParams): Promise<any> {
-    return await this.client.getTemplates(options)
+  public async getTemplates(options?: GetMessageTemplatesQueryParams, from?: number): Promise<any> {
+    return await this.client.getTemplates(options, from)
   }
 
-  public async deleteTemplate(name: string): Promise<any> {
-    return await this.client.deleteTemplate(name)
+  public async deleteTemplate(name: string, from?: number): Promise<any> {
+    return await this.client.deleteTemplate(name, from)
   }
 }

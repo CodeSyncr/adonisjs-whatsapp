@@ -45,7 +45,7 @@ export default class WhatsAppClient {
       }
 
       if (!this.connection) {
-        return this.db.connection(this.config.db.connectionName)
+        this.db.connection(this.config.db.connectionName)
       }
 
       const waResponse = await this.db
@@ -83,15 +83,40 @@ export default class WhatsAppClient {
     return parse ? WhatsAppClient.parse(response.data) : response.data
   }
 
-  public async media(media: string) {
-    const { timeout, graphUrl, graphVersion } = this.config.config!
+  public async media(media: string, from?: number) {
+    let { timeout, graphUrl, graphVersion } = this.config.config!
+    let dbHeaders: any = null
+    if (this.config.db) {
+      if (!from) {
+        throw new Error('From (id for whatsapp db) is required as db config is enabled.')
+      }
 
+      if (!this.connection) {
+        this.db.connection(this.config.db.connectionName)
+      }
+
+      const waResponse = await this.db
+        .query()
+        .select('*')
+        .from(this.config.db!.tableName)
+        .where('id', from)
+        .first()
+      if (waResponse) {
+        graphVersion = waResponse.graph_version
+        dbHeaders = {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + waResponse.access_token,
+        }
+      } else {
+        throw new Error('Incorrect Phone Number ID')
+      }
+    }
     const response = await axios({
       validateStatus: (status) => status <= 999,
       method: 'GET',
       url: `${graphUrl}/${graphVersion}/${media}`,
       timeout,
-      headers: this.headers,
+      headers: dbHeaders ?? this.headers,
       responseType: 'json',
     })
 
@@ -102,15 +127,43 @@ export default class WhatsAppClient {
     return response.data
   }
 
-  public async upload(form: FormData) {
-    const { timeout, phoneNumberId, graphUrl, graphVersion } = this.config.config!
+  public async upload(form: FormData, from?: number) {
+    let { timeout, phoneNumberId, graphUrl, graphVersion } = this.config.config!
+    let dbHeaders: any = null
 
+    if (this.config.db) {
+      if (!from) {
+        throw new Error('From (id for whatsapp db) is required as db config is enabled.')
+      }
+
+      if (!this.connection) {
+        this.db.connection(this.config.db.connectionName)
+      }
+
+      const waResponse = await this.db
+        .query()
+        .select('*')
+        .from(this.config.db!.tableName)
+        .where('id', from)
+        .first()
+      if (waResponse) {
+        graphVersion = waResponse.graph_version
+        phoneNumberId = waResponse.phone_number_id
+        dbHeaders = {
+          ...form.getHeaders(),
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + waResponse.access_token,
+        }
+      } else {
+        throw new Error('Incorrect Phone Number ID')
+      }
+    }
     const response = await axios({
       validateStatus: (status) => status <= 999,
       method: 'POST',
       url: `${graphUrl}/${graphVersion}/${phoneNumberId}/media`,
       timeout,
-      headers: { ...form.getHeaders(), ...this.headers },
+      headers: dbHeaders ?? { ...form.getHeaders(), ...this.headers },
       data: form,
       responseType: 'json',
     })
@@ -123,14 +176,41 @@ export default class WhatsAppClient {
   }
 
   public async createTemplate(data: Record<string, any>) {
-    const { timeout, whatsappBusinessId, graphUrl, graphVersion } = this.config.config!
+    let { timeout, whatsappBusinessId, graphUrl, graphVersion } = this.config.config!
+    let dbHeaders: any = null
 
+    if (this.config.db) {
+      if (!data.from) {
+        throw new Error('From (id for whatsapp db) is required as db config is enabled.')
+      }
+
+      if (!this.connection) {
+        this.db.connection(this.config.db.connectionName)
+      }
+
+      const waResponse = await this.db
+        .query()
+        .select('*')
+        .from(this.config.db!.tableName)
+        .where('id', data.from)
+        .first()
+      if (waResponse) {
+        graphVersion = waResponse.graph_version
+        whatsappBusinessId = waResponse.whatsapp_business_id
+        dbHeaders = {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + waResponse.access_token,
+        }
+      } else {
+        throw new Error('Incorrect Phone Number ID')
+      }
+    }
     const response = await axios({
       validateStatus: (status) => status <= 999,
       method: 'POST',
       url: `${graphUrl}/${graphVersion}/${whatsappBusinessId}/message_templates`,
       timeout,
-      headers: this.headers,
+      headers: dbHeaders ?? this.headers,
       data: data,
       responseType: 'json',
     })
@@ -142,8 +222,36 @@ export default class WhatsAppClient {
     return response.data
   }
 
-  public async getTemplates(options?: GetMessageTemplatesQueryParams) {
-    const { timeout, whatsappBusinessId, graphUrl, graphVersion } = this.config.config!
+  public async getTemplates(options?: GetMessageTemplatesQueryParams, from?: number) {
+    let { timeout, whatsappBusinessId, graphUrl, graphVersion } = this.config.config!
+    let dbHeaders: any = null
+
+    if (this.config.db) {
+      if (!from) {
+        throw new Error('From (id for whatsapp db) is required as db config is enabled.')
+      }
+
+      if (!this.connection) {
+        this.db.connection(this.config.db.connectionName)
+      }
+
+      const waResponse = await this.db
+        .query()
+        .select('*')
+        .from(this.config.db!.tableName)
+        .where('id', from)
+        .first()
+      if (waResponse) {
+        graphVersion = waResponse.graph_version
+        whatsappBusinessId = waResponse.whatsapp_business_id
+        dbHeaders = {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + waResponse.access_token,
+        }
+      } else {
+        throw new Error('Incorrect Phone Number ID')
+      }
+    }
     let qs = ''
 
     if (options) {
@@ -162,7 +270,7 @@ export default class WhatsAppClient {
       method: 'GET',
       url: `${graphUrl}/${graphVersion}/${whatsappBusinessId}/message_templates${qs}`,
       timeout,
-      headers: this.headers,
+      headers: dbHeaders ?? this.headers,
       responseType: 'json',
     })
 
@@ -173,16 +281,86 @@ export default class WhatsAppClient {
     return response.data
   }
 
-  public async deleteTemplate(name: string): Promise<any> {
-    const { timeout, graphUrl, graphVersion, whatsappBusinessId } = this.config.config!
+  public async deleteTemplate(name: string, from?: number): Promise<any> {
+    let { timeout, graphUrl, graphVersion, whatsappBusinessId } = this.config.config!
+    let dbHeaders: any = null
+
+    if (this.config.db) {
+      if (!from) {
+        throw new Error('From (id for whatsapp db) is required as db config is enabled.')
+      }
+
+      if (!this.connection) {
+        this.db.connection(this.config.db.connectionName)
+      }
+
+      const waResponse = await this.db
+        .query()
+        .select('*')
+        .from(this.config.db!.tableName)
+        .where('id', from)
+        .first()
+      if (waResponse) {
+        graphVersion = waResponse.graph_version
+        whatsappBusinessId = waResponse.whatsapp_business_id
+        dbHeaders = {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + waResponse.access_token,
+        }
+      } else {
+        throw new Error('Incorrect Phone Number ID')
+      }
+    }
 
     const response = await axios({
       validateStatus: (status) => status <= 999,
       method: 'DELETE',
       url: `${graphUrl}/${graphVersion}/${whatsappBusinessId}/message_templates?name=${name}`,
       timeout,
-      headers: this.headers,
+      headers: dbHeaders ?? this.headers,
       responseType: 'json',
+    })
+
+    if ('error' in response.data) {
+      throw new Error(response.data.error?.error_data?.details || response.data.error?.message)
+    }
+
+    return response.data
+  }
+
+  public async download(url: string, from?: number): Promise<any> {
+    let dbHeaders: any = null
+
+    if (this.config.db) {
+      if (!from) {
+        throw new Error('From (id for whatsapp db) is required as db config is enabled.')
+      }
+
+      if (!this.connection) {
+        this.db.connection(this.config.db.connectionName)
+      }
+
+      const waResponse = await this.db
+        .query()
+        .select('*')
+        .from(this.config.db!.tableName)
+        .where('id', from)
+        .first()
+      if (waResponse) {
+        dbHeaders = {
+          Authorization: 'Bearer ' + waResponse.access_token,
+        }
+      } else {
+        throw new Error('Incorrect Phone Number ID')
+      }
+    }
+
+    const response = await axios({
+      validateStatus: (status) => status <= 999,
+      method: 'GET',
+      url: url,
+      headers: dbHeaders ?? { Authorization: 'Bearer ' + this.config.config!.accessToken },
+      responseType: 'stream',
     })
 
     if ('error' in response.data) {

@@ -348,9 +348,9 @@ declare module '@ioc:Adonis/Addons/WhatsApp' {
       handler: (message: WhatsAppMessageContract | WhatsAppStatusContract) => void
     ): void
 
-    downloadMedia(media: string, options?: DownloadOptions): Promise<string | false>
+    downloadMedia(media: string, options?: DownloadOptions, from?: number): Promise<string | false>
 
-    uploadMedia(source: string | MultipartFileContract): Promise<string | false>
+    uploadMedia(source: string | MultipartFileContract, from?: number): Promise<string | false>
 
     createTemplate(
       category: TemplateCategory,
