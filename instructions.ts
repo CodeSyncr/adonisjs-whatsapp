@@ -129,17 +129,6 @@ async function getModelName(sink: typeof sinkStatic): Promise<string> {
 /**
  * Prompts user for the table name
  */
-// async function getTableName(sink: typeof sinkStatic): Promise<string> {
-//   return sink.getPrompt().ask('Enter the database table name to look up whatsapp config', {
-//     validate(value) {
-//       return !!value.trim().length
-//     },
-//   })
-// }
-
-/**
- * Prompts user for the table name
- */
 async function getMigrationConsent(sink: typeof sinkStatic, tableName: string): Promise<boolean> {
   return sink
     .getPrompt()
