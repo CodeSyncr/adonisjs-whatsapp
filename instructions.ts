@@ -108,7 +108,7 @@ function makeConfig(
   template.overwrite = true
 
   const partials: any = {
-    provider: getStub(CONFIG_PARTIALS_BASE, `whatsapp-${state.provider}.txt`),
+    wa_config: getStub(CONFIG_PARTIALS_BASE, `whatsapp-${state.provider}.txt`),
   }
 
   template.apply(state).partials(partials).commit()
