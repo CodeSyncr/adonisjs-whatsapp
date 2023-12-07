@@ -5,6 +5,7 @@ import {
   WhatsAppConfig,
   WhatsAppResultContract,
 } from '@ioc:Adonis/Addons/WhatsApp'
+import Database from '@ioc:Adonis/Lucid/Database'
 
 type WhatsAppResult = {
   messaging_product: 'whatsapp'
@@ -31,14 +32,35 @@ export default class WhatsAppClient {
   }
 
   public async send(data: Record<string, any>, parse = true) {
-    const { timeout, phoneNumberId, graphUrl, graphVersion } = this.config.config!
+    let { timeout, phoneNumberId, graphUrl, graphVersion } = this.config.config!
+    let dbHeaders: any = null
+    if (this.config.db) {
+      if (!data.from) {
+        throw new Error('From (id for whatsapp db) is required as db config is enabled.')
+      }
+      const waResponse = await Database.query()
+        .select('*')
+        .from(this.config.db!.tableName)
+        .where('id', data.from)
+        .first()
+      if (waResponse) {
+        phoneNumberId = waResponse.phone_number_id
+        graphVersion = waResponse.graph_version
+        dbHeaders = {
+          'Content-Type': 'application/json',
+          'Authorization': 'Bearer ' + waResponse.access_token,
+        }
+      } else {
+        throw new Error('Incorrect Phone Number ID')
+      }
+    }
 
     const response = await axios({
       validateStatus: (status) => status <= 999,
       method: 'POST',
       url: `${graphUrl}/${graphVersion}/${phoneNumberId}/messages`,
       timeout,
-      headers: this.headers,
+      headers: dbHeaders ?? this.headers,
       data: { ...this.mandatory, ...data },
       responseType: 'json',
     })

@@ -5,6 +5,7 @@ import Helpers from './Helpers'
 import FormData from 'form-data'
 import WhatsAppClient from './WhatsAppClient'
 import { EmitterContract } from '@ioc:Adonis/Core/Event'
+
 import { DriveManagerContract } from '@ioc:Adonis/Core/Drive'
 import { MultipartFileContract } from '@ioc:Adonis/Core/BodyParser'
 
@@ -43,10 +44,12 @@ export class WhatsAppCloudApi implements WhatsAppCloudApiContract {
   public async sendText(
     to: number,
     text: string,
-    options?: TextOptions
+    options?: TextOptions,
+    from?: number
   ): Promise<WhatsAppResultContract> {
     return await this.client.send({
       to,
+      from,
       type: 'text',
       text: {
         preview_url: options?.preview_url || false,
@@ -58,10 +61,12 @@ export class WhatsAppCloudApi implements WhatsAppCloudApiContract {
   public async sendImage(
     to: number,
     media: string,
-    options?: MediaOptions
+    options?: MediaOptions,
+    from?: number
   ): Promise<WhatsAppResultContract> {
     return await this.client.send({
       to,
+      from,
       type: 'image',
       image: {
         ...(Helpers.isUrl(media) ? { link: media } : { id: media }),
@@ -73,10 +78,12 @@ export class WhatsAppCloudApi implements WhatsAppCloudApiContract {
   public async sendDocument(
     to: number,
     media: string,
-    options?: DocumentOptions
+    options?: DocumentOptions,
+    from?: number
   ): Promise<WhatsAppResultContract> {
     return await this.client.send({
       to,
+      from,
       type: 'document',
       document: {
         ...(Helpers.isUrl(media) ? { link: media } : { id: media }),
@@ -85,10 +92,15 @@ export class WhatsAppCloudApi implements WhatsAppCloudApiContract {
     })
   }
 
-  public async sendAudio(to: number, media: string): Promise<WhatsAppResultContract> {
+  public async sendAudio(
+    to: number,
+    media: string,
+    from?: number
+  ): Promise<WhatsAppResultContract> {
     return await this.client.send({
       to,
       type: 'audio',
+      from,
       audio: {
         ...(Helpers.isUrl(media) ? { link: media } : { id: media }),
       },
@@ -98,10 +110,12 @@ export class WhatsAppCloudApi implements WhatsAppCloudApiContract {
   public async sendVideo(
     to: number,
     media: string,
-    options?: MediaOptions
+    options?: MediaOptions,
+    from?: number
   ): Promise<WhatsAppResultContract> {
     return await this.client.send({
       to,
+      from,
       type: 'video',
       video: {
         ...(Helpers.isUrl(media) ? { link: media } : { id: media }),
@@ -110,9 +124,14 @@ export class WhatsAppCloudApi implements WhatsAppCloudApiContract {
     })
   }
 
-  public async sendSticker(to: number, media: string): Promise<WhatsAppResultContract> {
+  public async sendSticker(
+    to: number,
+    media: string,
+    from?: number
+  ): Promise<WhatsAppResultContract> {
     return await this.client.send({
       to,
+      from,
       type: 'sticker',
       sticker: {
         ...(Helpers.isUrl(media) ? { link: media } : { id: media }),
@@ -123,10 +142,12 @@ export class WhatsAppCloudApi implements WhatsAppCloudApiContract {
   public async sendLocation(
     to: number,
     coordinate: CoordinateOptions,
-    options?: LocationOptions
+    options?: LocationOptions,
+    from?: number
   ): Promise<WhatsAppResultContract> {
     return await this.client.send({
       to,
+      from,
       type: 'location',
       location: {
         ...coordinate,
@@ -139,10 +160,12 @@ export class WhatsAppCloudApi implements WhatsAppCloudApiContract {
     to: number,
     template: string,
     language: string,
-    components?: ComponentOptions[]
+    components?: ComponentOptions[],
+    from?: number
   ): Promise<WhatsAppResultContract> {
     return await this.client.send({
       to,
+      from,
       type: 'template',
       template: {
         name: template,
@@ -156,10 +179,12 @@ export class WhatsAppCloudApi implements WhatsAppCloudApiContract {
 
   public async sendContact(
     to: number,
-    contacts: ContactOptions[]
+    contacts: ContactOptions[],
+    from?: number
   ): Promise<WhatsAppResultContract> {
     return await this.client.send({
       to,
+      from,
       type: 'contacts',
       contacts,
     })
@@ -169,10 +194,12 @@ export class WhatsAppCloudApi implements WhatsAppCloudApiContract {
     to: number,
     text: string,
     buttons: ButtonsOptions,
-    options?: InteractiveOptions
+    options?: InteractiveOptions,
+    from?: number
   ): Promise<WhatsAppResultContract> {
     return await this.client.send({
       to,
+      from,
       type: 'interactive',
       interactive: {
         type: 'button',
@@ -199,10 +226,12 @@ export class WhatsAppCloudApi implements WhatsAppCloudApiContract {
     text: string,
     button: string,
     sections: SectionOptions[],
-    options?: InteractiveOptions
+    options?: InteractiveOptions,
+    from?: number
   ): Promise<WhatsAppResultContract> {
     return await this.client.send({
       to,
+      from,
       type: 'interactive',
       interactive: {
         type: 'list',
