@@ -217,6 +217,7 @@ declare module '@ioc:Adonis/Addons/WhatsApp' {
     wamid: string
     data: Record<string, any>
     timestamp: number
+    phoneNumberId
     type:
       | 'text'
       | 'image'
@@ -235,6 +236,7 @@ declare module '@ioc:Adonis/Addons/WhatsApp' {
     wamid: string
     timestamp: number
     status: 'sent' | 'delivered' | 'read'
+    phoneNumberId
   }
 
   export interface WhatsAppResultContract {

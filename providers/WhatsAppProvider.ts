@@ -119,10 +119,11 @@ export default class WhatsAppProvider {
             data: interactive?.data || message[message.type],
             timestamp: Number(message.timestamp),
             type,
+            phoneNumberId,
           }
 
-          await Event.emit(`wa:message:*:${phoneNumberId}`, data)
-          await Event.emit(`wa:message:${type}:${phoneNumberId}`, data)
+          await Event.emit(`wa:message:*`, data)
+          await Event.emit(`wa:message:${type}`, data)
         }
 
         if (status) {
@@ -131,14 +132,15 @@ export default class WhatsAppProvider {
             wamid: status.id,
             timestamp: Number(status.timestamp),
             status: status.status,
+            phoneNumberId,
           }
 
-          await Event.emit(`wa:status:${status.status}:${phoneNumberId}`, data)
-          await Event.emit(`wa:status:*:${phoneNumberId}`, data)
+          await Event.emit(`wa:status:${status.status}`, data)
+          await Event.emit(`wa:status:*`, data)
         }
 
         if (data !== null) {
-          await Event.emit(`wa:*:${phoneNumberId}`, data)
+          await Event.emit(`wa:*`, data)
         }
       }
     )
