@@ -285,7 +285,7 @@ export class WhatsAppCloudApi implements WhatsAppCloudApiContract {
     options?: DownloadOptions,
     from?: number
   ): Promise<string | false> {
-    const response = await this.client.media(media)
+    const response = await this.client.media(media, from)
     if (!response.url || !response.mime_type) return false
 
     const ext = mime.extension(response.mime_type)
@@ -296,9 +296,9 @@ export class WhatsAppCloudApi implements WhatsAppCloudApiContract {
 
     if (options?.disk) {
       const disk = this.drive.use(options.disk) as DriveManagerContract
-      await disk.putStream(filepath, file.data)
+      await disk.put(filepath, file)
     } else {
-      await this.drive.putStream(filepath, file.data)
+      await this.drive.put(filepath, file)
     }
 
     return filename
