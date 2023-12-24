@@ -360,7 +360,7 @@ export default class WhatsAppClient {
       method: 'GET',
       url: url,
       headers: dbHeaders ?? { Authorization: 'Bearer ' + this.config.config!.accessToken },
-      responseType: 'stream',
+      responseType: 'arraybuffer',
     })
 
     if ('error' in response.data) {
