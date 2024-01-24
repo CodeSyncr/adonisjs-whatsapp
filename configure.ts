@@ -58,8 +58,7 @@ export async function configure(command: Configure) {
   }
 
   const codemods = await command.createCodemods()
-  command.logger.info(`current selectedProviders is === ${selectedProviders}`)
-  if (selectedProviders === 'lucid') {
+  if (providers.includes('lucid')) {
     const modelNameInput: string = await getModelName()
     const modelName = string
       .create(modelNameInput.replace(/(\.ts|\.js)$/, ''))
