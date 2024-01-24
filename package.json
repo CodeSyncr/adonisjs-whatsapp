@@ -2,7 +2,10 @@
   "name": "@brighthustle/adonisjs-whatsapp",
   "description": "Connect your WhatsApp Cloud API with AdonisJS",
   "version": "2.0.1-0",
-  "main": "./build/index.js",
+  "engines": {
+    "node": ">=18.16.0"
+  },
+  "main": "build/index.js",
   "type": "module",
   "files": [
     "build/src",
@@ -99,7 +102,6 @@
     "adonisjs",
     "adonisjs-whatsapp"
   ],
-  "types": "build/adonis-typings/index.d.ts",
   "eslintConfig": {
     "extends": "@adonisjs/eslint-config/package"
   },
@@ -129,23 +131,7 @@
       "html"
     ],
     "exclude": [
-      "tests/**",
-      "src/repl_bindings.ts"
+      "tests/**"
     ]
-  },
-  "tsup": {
-    "entry": [
-      "./index.ts",
-      "./src/types.ts",
-      "./src/*.ts",
-      "./providers/whatsapp_provider.ts",
-      "./services/main.ts"
-    ],
-    "outDir": "./build",
-    "clean": true,
-    "format": "esm",
-    "dts": false,
-    "sourcemap": true,
-    "target": "esnext"
   }
 }
