@@ -58,7 +58,7 @@ export async function configure(command: Configure) {
   }
 
   const codemods = await command.createCodemods()
-
+  command.logger.info(`current selectedProviders is === ${selectedProviders}`)
   if (selectedProviders === 'lucid') {
     const modelNameInput: string = await getModelName()
     const modelName = string
