@@ -1,0 +1,35 @@
+{{#var modelName = generators.modelName(name)}}
+{{#var modelFileName = generators.modelFileName(name)}}
+{{{
+  exports({
+    to: app.modelsPath(modelFileName)
+  })
+}}}
+import { DateTime } from 'luxon'
+import { BaseModel, column } from '@adonisjs/lucid/orm'
+
+export default class {{ modelName }} extends BaseModel {
+  @column({ isPrimary: true })
+  declare id: number
+
+  @column()
+  public phoneNumberId: string
+
+  @column()
+  public whatsappBusinessId: string
+
+  @column()
+  public accessToken: string
+
+  @column()
+  public verifyToken: string
+
+  @column()
+  public graphVersion?: string
+
+  @column.dateTime({ autoCreate: true })
+  declare createdAt: DateTime
+
+  @column.dateTime({ autoCreate: true, autoUpdate: true })
+  declare updatedAt: DateTime
+}
