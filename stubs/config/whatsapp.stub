@@ -5,9 +5,9 @@ import env from '#start/env'
 import { defineConfig } from "@brighthustle/adonisjs-whatsapp";
 
 const whatsappConfig = defineConfig({
-  provider: '{{transports[0]}}',
+  provider: '{{providers[0]}}',
   config: {
-    {{#if transports.includes('local')}}
+    {{#if providers.includes('local')}}
       webhookRoute: '/webhook/whatsapp',
       timeout: 60_000,
       phoneNumberId: Env.get('WABA_PHONE_ID'),
@@ -17,17 +17,17 @@ const whatsappConfig = defineConfig({
       graphUrl: 'https://graph.facebook.com',
       graphVersion: 'v16.0',
     {{/if}}
-    {{#if transports.includes('lucid')}}
+    {{#if providers.includes('lucid')}}
       webhookRoute: '/webhook/whatsapp',
       timeout: 60_000,
       graphUrl: 'https://graph.facebook.com',
       graphVersion: 'v16.0',
     {{/if}}
   },
-  {{#if transports.includes('lucid')}}
+  {{#if providers.includes('lucid')}}
     db: {
       dbName: Env.get('PG_DB_NAME'),
-      tableName: '{{ transports[0].tableName }}',
+      tableName: '{{ providers[0].tableName }}',
       connectionName: Env.get('DB_CONNECTION', 'mysql'),
     },
   {{/if}}

@@ -1,6 +1,6 @@
 {{{
   exports({
-    to: app.migrationsPath(migration.fileName)
+    to: app.migrationsPath(fileName)
   })
 }}}
 import { BaseSchema } from '@adonisjs/lucid/schema'
