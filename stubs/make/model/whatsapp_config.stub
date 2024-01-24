@@ -13,19 +13,19 @@ export default class {{ modelName }} extends BaseModel {
   declare id: number
 
   @column()
-  public phoneNumberId: string
+  declare phoneNumberId: string
 
   @column()
-  public whatsappBusinessId: string
+  declare whatsappBusinessId: string
 
   @column()
-  public accessToken: string
+  declare accessToken: string
 
   @column()
-  public verifyToken: string
+  declare verifyToken: string
 
   @column()
-  public graphVersion?: string
+  declare graphVersion?: string
 
   @column.dateTime({ autoCreate: true })
   declare createdAt: DateTime

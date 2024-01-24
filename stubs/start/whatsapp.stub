@@ -1,5 +1,6 @@
----
-to: {{ app.makePath('start/whatsapp.ts') }}
----
-
+{{{
+  exports({
+    to: app.makePath('start/whatsapp.ts')
+  })
+}}}
 // import whatsapp from '@brighthustle/adonisjs-whatsapp/services/main'
