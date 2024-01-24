@@ -23,10 +23,6 @@ export async function configure(command: Configure) {
       },
     })
   }
-
-  // async function getMigrationConsent(tableName: string): Promise<boolean> {
-  //   return await command.prompt.confirm(`Create migration for the ${tableName} table?`)
-  // }
   /**
    * Otherwise force prompt for selection
    */
@@ -65,13 +61,7 @@ export async function configure(command: Configure) {
       .singular()
       .pascalCase()
     const tableName = string.create(modelName).snakeCase().plural()
-    // const modelReference = string.create(modelName).singular().camelCase()
-    // // const modelNameSpace =
-
-    // const migrationConsent = await getMigrationConsent(tableName.toString())
-    const migrationName = `${Date.now()}_${tableName}`
-
-    // const camelCaseSchemaName = string.create(tableName).camelCase().suffix('_schema')
+    const migrationName = `${Date.now()}_${tableName}.ts`
     if (modelNameInput) {
       /**
        * Publish model file
