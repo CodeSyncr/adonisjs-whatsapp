@@ -16,18 +16,10 @@ import {
 import { HttpContext } from '@adonisjs/core/http'
 import Helpers from '../src/helpers.js'
 import { Emitter } from '@adonisjs/core/events'
+import db from '@adonisjs/lucid/services/db'
 
 export default class WhatsAppProvider {
-  private config = {
-    webhookRoute: '/webhook/whatsapp',
-    timeout: 60,
-    phoneNumberId: null,
-    whatsappBusinessId: null,
-    accessToken: null,
-    verifyToken: null,
-    graphUrl: 'https://graph.facebook.com',
-    graphVersion: 'v16.0',
-  }
+  private config = {}
 
   constructor(protected app: ApplicationService) {}
 
@@ -35,9 +27,12 @@ export default class WhatsAppProvider {
     this.app.container.singleton('whatsapp', async () => {
       const { default: Whatsapp } = await import('../src/whatsapp.js')
       const emitter: Emitter<any> = await this.app.container.make('emitter')
+      // const drive: any = await this.app.container.make('drive')
+      const database = await this.app.container.make('lucid.db')
+
       const config = this.app.config.get<WhatsAppConfig>('whatsapp', this.config)
 
-      return new Whatsapp(config, emitter)
+      return new Whatsapp(config, emitter, database)
     })
   }
 
@@ -50,17 +45,36 @@ export default class WhatsAppProvider {
     const whatsapp: WhatsAppConfig = config.get('whatsapp', this.config)
 
     // webhook verifier
-    router.get(whatsapp.webhookRoute, (ctx: HttpContext) => {
+    router.get(`${whatsapp.config!.webhookRoute}/:phoneNumberId`, async (ctx: HttpContext) => {
       const payload = ctx.request.qs()
+      const { phoneNumberId } = ctx.request.params()
+      let verifyToken: string | undefined | null = null
 
+      if (whatsapp.provider === 'db') {
+        const Database: typeof db = await this.app.container.make('lucid.db')
+        const connection = Database.connection(whatsapp.db!.connectionName)
+        try {
+          const data = await connection
+            .from(whatsapp.db!.tableName)
+            .select('*')
+            .where('phone_number_id', phoneNumberId)
+            .first()
+          if (data) {
+            verifyToken = data.verify_token
+          } else {
+            return ctx.response.status(404).send({ code: 403, message: 'Invalid phone id' })
+          }
+        } catch (error) {
+          // return ctx.response.status(500).send({ code: 500, message: 'Invalid phone id', error })
+        }
+      } else {
+        verifyToken = whatsapp.config!.verifyToken
+      }
       if (!payload['hub.mode'] || !payload['hub.verify_token']) {
         return ctx.response.status(400).send({ code: 400 })
       }
 
-      if (
-        payload['hub.mode'] !== 'subscribe' ||
-        payload['hub.verify_token'] !== whatsapp.verifyToken
-      ) {
+      if (payload['hub.mode'] !== 'subscribe' || payload['hub.verify_token'] !== verifyToken) {
         return ctx.response.status(403).send({ code: 403 })
       }
 
@@ -69,8 +83,9 @@ export default class WhatsAppProvider {
     })
 
     // webhook
-    router.post(whatsapp.webhookRoute, async (ctx: HttpContext) => {
+    router.post(`${whatsapp.config!.webhookRoute}/:phoneNumberId`, async (ctx: HttpContext) => {
       const payload = ctx.request.body()
+      const { phoneNumberId } = ctx.request.params()
 
       if (!payload.object) {
         return ctx.response.status(403).send({ code: 403 })
@@ -82,7 +97,7 @@ export default class WhatsAppProvider {
       const contact = !!value.contacts && value.contacts[0]
       const metadata = !!value.metadata && value.metadata
 
-      if (Number(metadata.phone_number_id) !== Number(whatsapp.phoneNumberId)) {
+      if (Number(metadata.phone_number_id) !== Number(phoneNumberId)) {
         // ignore webhook if phone number id is different
         return ctx.response.status(200).send({ code: 200 })
       }
@@ -105,6 +120,7 @@ export default class WhatsAppProvider {
           data: interactive?.data || message[message.type],
           timestamp: Number(message.timestamp),
           type,
+          phoneNumberId,
         }
 
         await emitter.emit('wa:message:*', data)
@@ -117,6 +133,7 @@ export default class WhatsAppProvider {
           wamid: status.id,
           timestamp: Number(status.timestamp),
           status: status.status,
+          phoneNumberId,
         }
 
         await emitter.emit(`wa:status:${status.status}`, data)

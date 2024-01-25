@@ -224,6 +224,7 @@ export type WhatsAppMessageContract = {
   wamid: string
   data: Record<string, any>
   timestamp: number
+  phoneNumberId: any
   type:
     | 'text'
     | 'image'
@@ -242,6 +243,7 @@ export type WhatsAppStatusContract = {
   wamid: string
   timestamp: number
   status: 'sent' | 'delivered' | 'read'
+  phoneNumberId: any
 }
 
 export interface WhatsAppResultContract {
@@ -345,14 +347,25 @@ export interface WhatsappService extends Whatsapp {}
 
 //   deleteTemplate(name: string): Promise<any>
 // }
-
-export interface WhatsAppConfig {
+export interface WhatsAppDataConfig {
   webhookRoute: string
   timeout: number
-  phoneNumberId: string
-  whatsappBusinessId: string
-  accessToken: string
-  verifyToken: string
+  phoneNumberId?: string
+  whatsappBusinessId?: string
+  accessToken?: string
+  verifyToken?: string
   graphUrl: string
   graphVersion: string
+}
+
+export interface WhatsAppDatabaseConfig {
+  dbName: string
+  tableName: string
+  connectionName: string
+}
+
+export interface WhatsAppConfig {
+  provider: string
+  config: WhatsAppDataConfig
+  db?: WhatsAppDatabaseConfig
 }

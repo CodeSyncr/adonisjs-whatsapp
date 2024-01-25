@@ -7,7 +7,6 @@
  * file that was distributed with this source code.
  */
 
-import axios from 'axios'
 import WhatsAppClient from './whats_app_client.js'
 import {
   ButtonsOptions,
@@ -33,6 +32,7 @@ import FormData from 'form-data'
 import mime from 'mime-types'
 import * as fs from 'node:fs'
 import Helpers from './helpers.js'
+import Database from '@adonisjs/lucid/services/db'
 
 export type WhatsAppResult = {
   messaging_product: 'whatsapp'
@@ -47,20 +47,26 @@ export type WhatsAppResult = {
 
 class Whatsapp {
   #config: WhatsAppConfig
-
   #client: WhatsAppClient
 
   constructor(
     config: WhatsAppConfig,
-    public emitter: Emitter<any>
+    public emitter: Emitter<any>,
+    public database: typeof Database
   ) {
     this.#config = config
-    this.#client = new WhatsAppClient(this.#config)
+    this.#client = new WhatsAppClient(this.#config, this.database)
   }
 
-  async sendText(to: number, text: string, options?: TextOptions): Promise<WhatsAppResultContract> {
+  async sendText(
+    to: number,
+    text: string,
+    options?: TextOptions,
+    from?: number
+  ): Promise<WhatsAppResultContract> {
     return await this.#client.send({
       to,
+      from,
       type: 'text',
       text: {
         preview_url: options?.preview_url || false,
@@ -72,10 +78,12 @@ class Whatsapp {
   async sendImage(
     to: number,
     media: string,
-    options?: MediaOptions
+    options?: MediaOptions,
+    from?: number
   ): Promise<WhatsAppResultContract> {
     return await this.#client.send({
       to,
+      from,
       type: 'image',
       image: {
         ...(Helpers.isUrl(media) ? { link: media } : { id: media }),
@@ -87,10 +95,12 @@ class Whatsapp {
   async sendDocument(
     to: number,
     media: string,
-    options?: DocumentOptions
+    options?: DocumentOptions,
+    from?: number
   ): Promise<WhatsAppResultContract> {
     return await this.#client.send({
       to,
+      from,
       type: 'document',
       document: {
         ...(Helpers.isUrl(media) ? { link: media } : { id: media }),
@@ -99,10 +109,11 @@ class Whatsapp {
     })
   }
 
-  async sendAudio(to: number, media: string): Promise<WhatsAppResultContract> {
+  async sendAudio(to: number, media: string, from?: number): Promise<WhatsAppResultContract> {
     return await this.#client.send({
       to,
       type: 'audio',
+      from,
       audio: {
         ...(Helpers.isUrl(media) ? { link: media } : { id: media }),
       },
@@ -112,10 +123,12 @@ class Whatsapp {
   async sendVideo(
     to: number,
     media: string,
-    options?: MediaOptions
+    options?: MediaOptions,
+    from?: number
   ): Promise<WhatsAppResultContract> {
     return await this.#client.send({
       to,
+      from,
       type: 'video',
       video: {
         ...(Helpers.isUrl(media) ? { link: media } : { id: media }),
@@ -124,9 +137,10 @@ class Whatsapp {
     })
   }
 
-  async sendSticker(to: number, media: string): Promise<WhatsAppResultContract> {
+  async sendSticker(to: number, media: string, from?: number): Promise<WhatsAppResultContract> {
     return await this.#client.send({
       to,
+      from,
       type: 'sticker',
       sticker: {
         ...(Helpers.isUrl(media) ? { link: media } : { id: media }),
@@ -137,10 +151,12 @@ class Whatsapp {
   async sendLocation(
     to: number,
     coordinate: CoordinateOptions,
-    options?: LocationOptions
+    options?: LocationOptions,
+    from?: number
   ): Promise<WhatsAppResultContract> {
     return await this.#client.send({
       to,
+      from,
       type: 'location',
       location: {
         ...coordinate,
@@ -153,10 +169,12 @@ class Whatsapp {
     to: number,
     template: string,
     language: string,
-    components?: ComponentOptions[]
+    components?: ComponentOptions[],
+    from?: number
   ): Promise<WhatsAppResultContract> {
     return await this.#client.send({
       to,
+      from,
       type: 'template',
       template: {
         name: template,
@@ -168,9 +186,14 @@ class Whatsapp {
     })
   }
 
-  async sendContact(to: number, contacts: ContactOptions[]): Promise<WhatsAppResultContract> {
+  async sendContact(
+    to: number,
+    contacts: ContactOptions[],
+    from?: number
+  ): Promise<WhatsAppResultContract> {
     return await this.#client.send({
       to,
+      from,
       type: 'contacts',
       contacts,
     })
@@ -180,10 +203,12 @@ class Whatsapp {
     to: number,
     text: string,
     buttons: ButtonsOptions,
-    options?: InteractiveOptions
+    options?: InteractiveOptions,
+    from?: number
   ): Promise<WhatsAppResultContract> {
     return await this.#client.send({
       to,
+      from,
       type: 'interactive',
       interactive: {
         type: 'button',
@@ -210,10 +235,12 @@ class Whatsapp {
     text: string,
     button: string,
     sections: SectionOptions[],
-    options?: InteractiveOptions
+    options?: InteractiveOptions,
+    from?: number
   ): Promise<WhatsAppResultContract> {
     return await this.#client.send({
       to,
+      from,
       type: 'interactive',
       interactive: {
         type: 'list',
@@ -246,7 +273,7 @@ class Whatsapp {
     })
   }
 
-  async uploadMedia(source: string | any): Promise<string | false> {
+  async uploadMedia(source: string | any, from?: number): Promise<string | false> {
     source = typeof source !== 'string' ? (source.tmpPath as string) : source
 
     const form = new FormData()
@@ -254,11 +281,15 @@ class Whatsapp {
     form.append('type', mime.contentType(source))
     form.append('file', fs.readFileSync(source), { filename: source })
 
-    const response = await this.#client.upload(form)
+    const response = await this.#client.upload(form, from)
     return response.id || false
   }
 
-  async downloadMedia(media: string, options?: DownloadOptions): Promise<string | false> {
+  async downloadMedia(
+    media: string,
+    options?: DownloadOptions,
+    from?: number
+  ): Promise<string | false> {
     const response = await this.#client.media(media)
     if (!response.url || !response.mime_type) return false
 
@@ -266,12 +297,7 @@ class Whatsapp {
     const filename = options?.filename || media + (ext ? '.' + ext : '')
     // const filepath = options?.folder ? options.folder + '/' + filename : filename
 
-    const file = await axios({
-      method: 'GET',
-      url: response.url,
-      headers: { Authorization: 'Bearer ' + this.#config.accessToken },
-      responseType: 'stream',
-    })
+    const file = await this.#client.download(response.url, from)
     console.log(file)
     // if (options?.disk) {
     //   const disk = this.drive.use(options.disk) as DriveManagerContract
@@ -279,7 +305,6 @@ class Whatsapp {
     // } else {
     //   await this.drive.putStream(filepath, file.data)
     // }
-
     return filename
   }
 
@@ -287,22 +312,24 @@ class Whatsapp {
     category: TemplateCategory,
     name: string,
     language: string,
-    components: TemplateComponent[]
+    components: TemplateComponent[],
+    from?: number
   ): Promise<WhatsAppTemplateResultContract> {
     return await this.#client.createTemplate({
       category,
       name,
       language,
       components,
+      from,
     })
   }
 
-  async getTemplates(options?: GetMessageTemplatesQueryParams): Promise<any> {
-    return await this.#client.getTemplates(options)
+  async getTemplates(options?: GetMessageTemplatesQueryParams, from?: number): Promise<any> {
+    return await this.#client.getTemplates(options, from)
   }
 
-  async deleteTemplate(name: string): Promise<any> {
-    return await this.#client.deleteTemplate(name)
+  async deleteTemplate(name: string, from?: number): Promise<any> {
+    return await this.#client.deleteTemplate(name, from)
   }
 }
 

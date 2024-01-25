@@ -15,20 +15,12 @@ export function defineConfig<T extends WhatsAppConfig>(config: T): T {
     throw new RuntimeException('Invalid config. It must be an object')
   }
 
-  if (!config.accessToken) {
-    throw new RuntimeException('Invalid access token. It must be an string')
+  if (!config.provider) {
+    throw new RuntimeException('Invalid provider. It must be lucid or local')
   }
 
-  if (!config.phoneNumberId) {
-    throw new RuntimeException('Invalid phone number id. It must be an string')
-  }
-
-  if (!config.accessToken) {
-    throw new RuntimeException('Invalid access token. It must be an string')
-  }
-
-  if (!config.verifyToken) {
-    throw new RuntimeException('Invalid verify token. It must be an string')
+  if (!config.config.webhookRoute) {
+    throw new RuntimeException('Invalid webhook route. It must be string')
   }
 
   return config
