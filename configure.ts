@@ -125,7 +125,7 @@ export async function configure(command: Configure) {
    * Define env variables validation for the selected transports
    */
   await codemods.defineEnvValidations({
-    leadingComment: 'Variables for configuring the mail package',
+    leadingComment: 'Variables for configuring the whatsapp package',
     variables: providers.reduce<Record<string, string>>((result, provider) => {
       ENV_VARIABLES[provider as keyof typeof ENV_VARIABLES].forEach((envVariable) => {
         result[envVariable] = 'Env.schema.string()'
