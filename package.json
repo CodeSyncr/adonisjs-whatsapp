@@ -115,14 +115,12 @@
     ]
   },
   "publishConfig": {
-    "access": "public",
-    "tag": "next"
+    "access": "public"
   },
   "np": {
     "message": "chore(release): %s",
     "contents": ".",
     "branch": "develop",
-    "tag": "next",
     "anyBranch": false
   },
   "c8": {
