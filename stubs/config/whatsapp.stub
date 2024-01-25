@@ -10,25 +10,25 @@ const whatsappConfig = defineConfig({
     {{#if providers.includes('local')}}
       webhookRoute: '/webhook/whatsapp',
       timeout: 60_000,
-      phoneNumberId: Env.get('WABA_PHONE_ID'),
-      whatsappBusinessId: Env.get('WABA_ID'),
-      accessToken: Env.get('WABA_TOKEN'),
-      verifyToken: Env.get('WABA_VERIFY'),
+      phoneNumberId: env.get('WABA_PHONE_ID'),
+      whatsappBusinessId: env.get('WABA_ID'),
+      accessToken: env.get('WABA_TOKEN'),
+      verifyToken: env.get('WABA_VERIFY'),
       graphUrl: 'https://graph.facebook.com',
-      graphVersion: 'v16.0',
+      graphVersion: 'v18.0',
     {{/if}}
     {{#if providers.includes('lucid')}}
       webhookRoute: '/webhook/whatsapp',
       timeout: 60_000,
       graphUrl: 'https://graph.facebook.com',
-      graphVersion: 'v16.0',
+      graphVersion: 'v18.0',
     {{/if}}
   },
   {{#if providers.includes('lucid')}}
     db: {
-      dbName: Env.get('PG_DB_NAME'),
-      tableName: '{{ providers[0].tableName }}',
-      connectionName: Env.get('DB_CONNECTION', 'mysql'),
+      dbName: env.get('DB_NAME'),
+      tableName: '{{ tableName }}',
+      connectionName: env.get('DB_CONNECTION', 'mysql'),
     },
   {{/if}}
 })

@@ -2,6 +2,16 @@ The package has been configured successfully. The Adonis WhatsApp configuration 
 
 Open the `env.ts` file and paste the following code inside the `Env.rules` object.
 
+### Variables for the Lucid driver
+
+```ts
+PG_DB_NAME: Env.schema.string(),
+DB_CONNECTION: Env.schema.string.optional(),
+DB_TABLE: Env.schema.string(),
+```
+
+### Variables for the Local driver
+
 ```ts
 WABA_PHONE_ID: Env.schema.string(),
 WABA_ID: Env.schema.string(),
