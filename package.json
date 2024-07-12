@@ -124,7 +124,8 @@
   },
   "np": {
     "contents": ".",
-    "anyBranch": true
+    "anyBranch": true,
+    "branch": "1.x"
   },
   "publishConfig": {
     "access": "public"
