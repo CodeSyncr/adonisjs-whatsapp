@@ -31,7 +31,7 @@ import { Emitter } from '@adonisjs/core/events'
 import FormData from 'form-data'
 import mime from 'mime-types'
 import * as fs from 'node:fs'
-import Helpers from './helpers.js'
+import helpers from './helpers.js'
 import Database from '@adonisjs/lucid/services/db'
 
 export type WhatsAppResult = {
@@ -86,7 +86,7 @@ class Whatsapp {
       from,
       type: 'image',
       image: {
-        ...(Helpers.isUrl(media) ? { link: media } : { id: media }),
+        ...(helpers.isUrl(media) ? { link: media } : { id: media }),
         ...options,
       },
     })
@@ -103,7 +103,7 @@ class Whatsapp {
       from,
       type: 'document',
       document: {
-        ...(Helpers.isUrl(media) ? { link: media } : { id: media }),
+        ...(helpers.isUrl(media) ? { link: media } : { id: media }),
         ...options,
       },
     })
@@ -115,7 +115,7 @@ class Whatsapp {
       type: 'audio',
       from,
       audio: {
-        ...(Helpers.isUrl(media) ? { link: media } : { id: media }),
+        ...(helpers.isUrl(media) ? { link: media } : { id: media }),
       },
     })
   }
@@ -131,7 +131,7 @@ class Whatsapp {
       from,
       type: 'video',
       video: {
-        ...(Helpers.isUrl(media) ? { link: media } : { id: media }),
+        ...(helpers.isUrl(media) ? { link: media } : { id: media }),
         ...options,
       },
     })
@@ -143,7 +143,7 @@ class Whatsapp {
       from,
       type: 'sticker',
       sticker: {
-        ...(Helpers.isUrl(media) ? { link: media } : { id: media }),
+        ...(helpers.isUrl(media) ? { link: media } : { id: media }),
       },
     })
   }

@@ -14,7 +14,7 @@ import {
   WhatsAppStatusContract,
 } from '../src/types/main.js'
 import { HttpContext } from '@adonisjs/core/http'
-import Helpers from '../src/helpers.js'
+import helpers from '../src/helpers.js'
 import { Emitter } from '@adonisjs/core/events'
 import db from '@adonisjs/lucid/services/db'
 
@@ -110,8 +110,8 @@ export default class WhatsAppProvider {
       let data: WhatsAppMessageContract | WhatsAppStatusContract | null = null
 
       if (message) {
-        const interactive = Helpers.translateInteractive(message)
-        const type = Helpers.translateType(interactive?.type || message.type)
+        const interactive = helpers.translateInteractive(message)
+        const type = helpers.translateType(interactive?.type || message.type)
 
         data = {
           from: Number(contact.wa_id),
