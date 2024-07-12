@@ -142,6 +142,8 @@ export default class WhatsAppProvider {
         if (data !== null) {
           await Event.emit(`wa:*`, data)
         }
+
+        return ctx.response.status(200).send({ code: 200 })
       }
     )
   }

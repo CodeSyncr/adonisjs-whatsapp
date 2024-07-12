@@ -13,10 +13,12 @@ declare module '@ioc:Adonis/Core/Event' {
     'wa:message:button': WhatsAppMessageContract
     'wa:message:list': WhatsAppMessageContract
     'wa:message:*': WhatsAppMessageContract
+
     'wa:status:sent': WhatsAppStatusContract
     'wa:status:delivered': WhatsAppStatusContract
     'wa:status:read': WhatsAppStatusContract
     'wa:status:*': WhatsAppStatusContract
+
     'wa:*': WhatsAppMessageContract | WhatsAppStatusContract
   }
 }
