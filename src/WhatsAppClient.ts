@@ -461,23 +461,23 @@ export default class WhatsAppClient {
     return headers
   }
 
-  private async getDbConfig(from?: number) {
-    if (this.config.db && from) {
-      if (!this.connection) {
-        this.connection = this.db.connection(this.config.db.connectionName)
-      }
-      const waResponse = await this.db
-        .query()
-        .select('*')
-        .from(this.config.db!.tableName)
-        .where('id', from)
-        .first()
+  // private async getDbConfig(from?: number) {
+  //   if (this.config.db && from) {
+  //     if (!this.connection) {
+  //       this.connection = this.db.connection(this.config.db.connectionName)
+  //     }
+  //     const waResponse = await this.db
+  //       .query()
+  //       .select('*')
+  //       .from(this.config.db!.tableName)
+  //       .where('id', from)
+  //       .first()
 
-      if (waResponse) {
-        return waResponse
-      }
-      throw new Error('Incorrect Phone Number ID')
-    }
-    return null
-  }
+  //     if (waResponse) {
+  //       return waResponse
+  //     }
+  //     throw new Error('Incorrect Phone Number ID')
+  //   }
+  //   return null
+  // }
 }
