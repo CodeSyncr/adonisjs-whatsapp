@@ -82,9 +82,9 @@ export default class WhatsAppClient {
       }
     }
 
-    if (apiProvider === ApiProvider.CLOUD_API) {
+    if (apiProvider === ApiProvider.MAG91_API) {
       data = Helpers.transformToMsg91SendTemplate(
-        data.from,
+        phoneNumberId!,
         data.template.name,
         data.template.language.code,
         data.template.components,
@@ -426,10 +426,10 @@ export default class WhatsAppClient {
     }
   }
 
-  private parseMsg91(data: Msg91Result, from: number): WhatsAppResultContract {
+  private parseMsg91(data: Msg91Result, from: string): WhatsAppResultContract {
     return {
       input: 0,
-      phone: from.toString(),
+      phone: from,
       wamid: data.request_id,
     }
   }
