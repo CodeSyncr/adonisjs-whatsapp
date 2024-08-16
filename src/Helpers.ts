@@ -70,7 +70,25 @@ export default class Helpers {
     components: ComponentOptions[],
     to: number
   ): Msg91TemplatePayload {
-    const msg91TemplatePayload: Msg91TemplatePayload = {
+    const toAndComponents = {
+      to: [`91${to.toString()}`],
+      components: {} as Record<string, { type: string; value: string; sub_type?: string }>,
+    }
+
+    components.forEach((component) => {
+      component.parameters.forEach((parameter, index) => {
+        const componentKey = `${component.type}_${index + 1}`
+        toAndComponents.components[componentKey] = {
+          type: parameter.type,
+          value: this.extractParameterValue(parameter),
+          ...(component.type === 'button' && component.sub_type
+            ? { sub_type: component.sub_type }
+            : {}),
+        }
+      })
+    })
+
+    return {
       integrated_number,
       content_type: 'template',
       payload: {
@@ -80,45 +98,12 @@ export default class Helpers {
           name,
           language: {
             code: language,
-            policy: 'deterministic', // or adjust according to your needs
+            policy: 'deterministic', // Adjust as needed
           },
-          to_and_components: [
-            {
-              to: [to!.toString()],
-              components: components.reduce((acc, component) => {
-                component.parameters.forEach((parameter, index) => {
-                  let componentKey: string
-                  let componentValue:
-                    | { type: string; value: string }
-                    | { type: string; subtype: string; value: string }
-
-                  if (component.type === 'header') {
-                    componentKey = `header_${index + 1}`
-                  } else if (component.type === 'body') {
-                    componentKey = `body_${index + 1}`
-                  } else if (component.type === 'button') {
-                    componentKey = `button_${index + 1}`
-                  } else {
-                    return
-                  }
-
-                  componentValue = {
-                    type: parameter.type,
-                    value: this.extractParameterValue(parameter),
-                  }
-
-                  acc[componentKey] = componentValue
-                })
-
-                return acc
-              }, {} as Record<string, { type: string; value: string } | { type: string; subtype: string; value: string }>),
-            },
-          ],
+          to_and_components: [toAndComponents],
         },
       },
     }
-
-    return msg91TemplatePayload
   }
 
   private static extractParameterValue(parameter: ParameterObject): string {

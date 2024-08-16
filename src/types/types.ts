@@ -15,6 +15,7 @@ export interface Msg91TemplatePayload {
           [key: string]: {
             type: string
             value: string
+            sub_type?: string
           }
         }
       }>
