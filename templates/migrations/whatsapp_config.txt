@@ -7,9 +7,11 @@ export default class extends BaseSchema {
     this.schema.createTable(this.tableName, (table) => {
       table.increments('id').primary()
       table.string('phone_number_id').notNullable().unique()
-      table.string('whatsapp_business_id').notNullable().unique()
       table.string('access_token').notNullable()
-      table.string('verify_token').notNullable()
+      table.string('api_provider', 40).notNullable()
+
+      table.string('whatsapp_business_id').nullable().unique()
+      table.string('verify_token').nullable()
       table.string('graph_version).nullable().defaultTo(null)
       
       table.timestamps()

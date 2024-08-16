@@ -12,6 +12,7 @@ type InstructionsState = {
   whatsappSchemaName: string
 
   provider: 'lucid' | 'local'
+  apiProvider: 'cloud-api' | 'msg91'
 }
 
 const CONFIG_PARTIALS_BASE = './config/partials'
@@ -29,6 +30,22 @@ const PROVIDER_PROMPT_CHOICES = [
     name: 'local' as const,
     message: 'Local',
     hint: ' (Uses ENV variable)',
+  },
+]
+
+/**
+ * Prompt choices for the api provider selection
+ */
+const API_PROVIDER_PROMPT_CHOICES = [
+  {
+    name: 'cloud-api' as const,
+    message: 'Cloud Api',
+    hint: ' (Uses Whatsapp Cloud Api)',
+  },
+  {
+    name: 'msg91' as const,
+    message: 'Msg 91',
+    hint: ' (Uses Msg 91 API Provider)',
   },
 ]
 
@@ -108,7 +125,7 @@ function makeConfig(
   template.overwrite = true
 
   const partials: any = {
-    wa_config: getStub(CONFIG_PARTIALS_BASE, `whatsapp-${state.provider}.txt`),
+    wa_config: getStub(CONFIG_PARTIALS_BASE, `whatsapp-${state.provider}-${state.apiProvider}.txt`),
   }
 
   template.apply(state).partials(partials).commit()
@@ -147,6 +164,19 @@ async function getProvider(sink: typeof sinkStatic) {
 }
 
 /**
+ * Prompts user to select the api provider
+ */
+async function getApiProvider(sink: typeof sinkStatic) {
+  return sink
+    .getPrompt()
+    .choice('Select provider for whatsapp config', API_PROVIDER_PROMPT_CHOICES, {
+      validate(choice) {
+        return choice && choice.length ? true : 'Select the provider for configuration of whatsapp'
+      },
+    })
+}
+
+/**
  * Instructions to be executed when setting up the package.
  */
 export default async function instructions(
@@ -158,9 +188,11 @@ export default async function instructions(
     whatsappTableName: '',
     whatsappSchemaName: '',
     provider: 'lucid',
+    apiProvider: 'cloud-api',
   }
 
   state.provider = await getProvider(sink)
+  state.apiProvider = await getApiProvider(sink)
 
   /**
    * Make model when provider is lucid otherwise prompt for the database

@@ -6,6 +6,8 @@ import {
   WhatsAppResultContract,
 } from '@ioc:Adonis/Addons/WhatsApp'
 import { DatabaseContract, QueryClientContract } from '@ioc:Adonis/Lucid/Database'
+import Helpers from './Helpers'
+import { ApiProvider } from './types/enum'
 
 type WhatsAppResult = {
   messaging_product: 'whatsapp'
@@ -16,6 +18,14 @@ type WhatsAppResult = {
   messages: {
     id: string
   }[]
+}
+
+type Msg91Result = {
+  messaging_product: 'msg91'
+  status: string
+  data: string
+  errors: any
+  request_id: string
 }
 
 export default class WhatsAppClient {
@@ -38,7 +48,15 @@ export default class WhatsAppClient {
 
   public async send(data: Record<string, any>, parse = true) {
     let { timeout, phoneNumberId, graphUrl, graphVersion } = this.config.config!
-    let dbHeaders: any = null
+    let headers: any = this.headers
+    let apiProvider: string | undefined | null = null
+    let url: string = `${graphUrl}/${graphVersion}/${phoneNumberId}/messages`
+
+    if (!this.config.db) {
+      this.validateApiProvider(this.config.config.apiProvider)
+      apiProvider = this.config.config.apiProvider
+      headers = this.getHeaders(apiProvider!, this.config.config.accessToken)
+    }
     if (this.config.db) {
       if (!data.from) {
         throw new Error('From (id for whatsapp db) is required as db config is enabled.')
@@ -56,23 +74,34 @@ export default class WhatsAppClient {
         .first()
       if (waResponse) {
         phoneNumberId = waResponse.phone_number_id
+        apiProvider = waResponse.api_provider
         graphVersion = waResponse.graph_version ?? graphVersion
-        dbHeaders = {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer ' + waResponse.access_token,
-        }
+        headers = this.getHeaders(apiProvider!, waResponse.access_token)
       } else {
         throw new Error('Incorrect Phone Number ID')
       }
     }
 
+    if (apiProvider === ApiProvider.CLOUD_API) {
+      data = Helpers.transformToMsg91SendTemplate(
+        data.from,
+        data.template.name,
+        data.template.language.code,
+        data.template.components,
+        data.to
+      )
+      url = `${graphUrl}/${graphVersion}/whatsapp/whatsapp-outbound-message/bulk/`
+    } else {
+      data = { ...this.mandatory, ...data }
+    }
+
     const response = await axios({
       validateStatus: (status) => status <= 999,
       method: 'POST',
-      url: `${graphUrl}/${graphVersion}/${phoneNumberId}/messages`,
+      url: url,
       timeout,
-      headers: dbHeaders ?? this.headers,
-      data: { ...this.mandatory, ...data },
+      headers: headers,
+      data: data,
       responseType: 'json',
     })
 
@@ -80,7 +109,11 @@ export default class WhatsAppClient {
       throw new Error(response.data.error?.error_data?.details || response.data.error?.message)
     }
 
-    return parse ? WhatsAppClient.parse(response.data) : response.data
+    return parse
+      ? apiProvider === ApiProvider.CLOUD_API
+        ? this.parse(response.data)
+        : this.parseMsg91(response.data, data.from)
+      : response.data
   }
 
   public async media(media: string, from?: number) {
@@ -177,7 +210,13 @@ export default class WhatsAppClient {
 
   public async createTemplate(data: Record<string, any>) {
     let { timeout, whatsappBusinessId, graphUrl, graphVersion } = this.config.config!
-    let dbHeaders: any = null
+    let headers: any = this.headers
+    let apiProvider: string = 'cloud-api'
+
+    if (!this.config.db) {
+      this.validateApiProvider(this.config.config.apiProvider)
+      apiProvider = this.config.config.apiProvider!
+    }
 
     if (this.config.db) {
       if (!data.from) {
@@ -196,10 +235,19 @@ export default class WhatsAppClient {
         .first()
       if (waResponse) {
         graphVersion = waResponse.graph_version ?? graphVersion
+        apiProvider = waResponse.api_provider
         whatsappBusinessId = waResponse.whatsapp_business_id
-        dbHeaders = {
-          'Content-Type': 'application/json',
-          'Authorization': 'Bearer ' + waResponse.access_token,
+        if (apiProvider === ApiProvider.CLOUD_API) {
+          headers = {
+            'Content-Type': 'application/json',
+            'Authorization': 'Bearer ' + waResponse.access_token,
+          }
+        }
+        if (apiProvider === ApiProvider.MAG91_API) {
+          headers = {
+            'Content-Type': 'application/json',
+            'authkey': waResponse.access_token,
+          }
         }
       } else {
         throw new Error('Incorrect Phone Number ID')
@@ -210,7 +258,7 @@ export default class WhatsAppClient {
       method: 'POST',
       url: `${graphUrl}/${graphVersion}/${whatsappBusinessId}/message_templates`,
       timeout,
-      headers: dbHeaders ?? this.headers,
+      headers: headers,
       data: data,
       responseType: 'json',
     })
@@ -370,11 +418,66 @@ export default class WhatsAppClient {
     return response.data
   }
 
-  private static parse(data: WhatsAppResult): WhatsAppResultContract {
+  private parse(data: WhatsAppResult): WhatsAppResultContract {
     return {
       input: Number(data.contacts[0].input),
       phone: data.contacts[0].wa_id,
       wamid: data.messages[0].id,
     }
+  }
+
+  private parseMsg91(data: Msg91Result, from: number): WhatsAppResultContract {
+    return {
+      input: 0,
+      phone: from.toString(),
+      wamid: data.request_id,
+    }
+  }
+
+  /**
+   * Validates if the provided apiProvider is one of the allowed values.
+   * @param apiProvider - The apiProvider to validate.
+   * @throws {Error} - Throws an error if apiProvider is not valid.
+   */
+  private validateApiProvider(apiProvider?: string) {
+    if (!apiProvider) {
+      throw new Error('API provider is required: cloud-api | msg91.')
+    }
+
+    if (!Object.values(ApiProvider).includes(apiProvider as ApiProvider)) {
+      throw new Error(
+        `Invalid API provider. Expected one of: ${Object.values(ApiProvider).join(', ')}.`
+      )
+    }
+  }
+
+  private getHeaders(apiProvider: string, accessToken?: string): any {
+    const headers: any = { 'Content-Type': 'application/json' }
+    if (apiProvider === ApiProvider.CLOUD_API) {
+      headers['Authorization'] = 'Bearer ' + accessToken
+    } else if (apiProvider === ApiProvider.MAG91_API) {
+      headers['authkey'] = accessToken
+    }
+    return headers
+  }
+
+  private async getDbConfig(from?: number) {
+    if (this.config.db && from) {
+      if (!this.connection) {
+        this.connection = this.db.connection(this.config.db.connectionName)
+      }
+      const waResponse = await this.db
+        .query()
+        .select('*')
+        .from(this.config.db!.tableName)
+        .where('id', from)
+        .first()
+
+      if (waResponse) {
+        return waResponse
+      }
+      throw new Error('Incorrect Phone Number ID')
+    }
+    return null
   }
 }

@@ -1,8 +1,8 @@
 config: {
   webhookRoute: '/webhook/whatsapp',
   timeout: 60_000,
-  graphUrl: 'https://graph.facebook.com',
-  graphVersion: 'v16.0',
+  graphUrl: 'https://control.msg91.com/api/',
+  graphVersion: 'v5',
 },
 db: {
   dbName: Env.get('PG_DB_NAME'),

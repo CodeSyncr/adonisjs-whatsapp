@@ -114,7 +114,7 @@ declare module '@ioc:Adonis/Addons/WhatsApp' {
       provider?: string
     }
 
-  type ParameterObject = {
+  export type ParameterObject = {
     type: 'currency' | 'date_time' | 'document' | 'image' | 'text' | 'video' | 'payload'
     payload?: string
     text?: string
@@ -371,6 +371,7 @@ declare module '@ioc:Adonis/Addons/WhatsApp' {
     webhookRoute: string
     timeout: number
     phoneNumberId?: string
+    apiProvider?: string
     whatsappBusinessId?: string
     accessToken?: string
     verifyToken?: string
