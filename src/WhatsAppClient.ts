@@ -83,14 +83,22 @@ export default class WhatsAppClient {
     }
 
     if (apiProvider === ApiProvider.MAG91_API) {
-      data = Helpers.transformToMsg91SendTemplate(
-        phoneNumberId!,
-        data.template.name,
-        data.template.language.code,
-        data.template.components,
-        data.to
-      )
-      url = `${graphUrl}/${graphVersion}/whatsapp/whatsapp-outbound-message/bulk/`
+      if (data.type === 'text') {
+        url = `${graphUrl}/${graphVersion}/whatsapp/whatsapp-outbound-message/?integrated_number=${phoneNumberId!}&recipient_number=${
+          data.to
+        }&content_type=text&text=${data.text.body}`
+      } else if (data.type === 'template') {
+        data = Helpers.transformToMsg91SendTemplate(
+          phoneNumberId!,
+          data.template.name,
+          data.template.language.code,
+          data.template.components,
+          data.to
+        )
+        url = `${graphUrl}/${graphVersion}/whatsapp/whatsapp-outbound-message/bulk/`
+      } else {
+        throw new Error('Not implemented in msg 91 apis')
+      }
     } else {
       data = { ...this.mandatory, ...data }
     }
