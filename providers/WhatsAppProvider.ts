@@ -150,12 +150,13 @@ export default class WhatsAppProvider {
       return ctx.response.status(200).send({ code: 200 })
     }
 
+    const interactive = Helpers.translateInteractiveMsg91(payload)
     const type = Helpers.translateType(payload.content_type)
     const data: WhatsAppMessageContract = {
       from: Number(payload.sender),
       sender: payload.customer_name,
       wamid: payload.message_uuid,
-      data: payload[payload.type],
+      data: interactive?.data || { body: payload[payload.content_type] },
       timestamp: Number(payload.received_at),
       type,
       phoneNumberId,
