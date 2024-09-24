@@ -101,6 +101,7 @@ export default class WhatsAppClient {
         throw new Error('Not implemented in msg 91 apis')
       }
     } else {
+      url = `${graphUrl}/${graphVersion}/${phoneNumberId}/messages`
       data = { ...this.mandatory, ...data }
     }
 

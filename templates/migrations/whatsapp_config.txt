@@ -12,8 +12,8 @@ export default class extends BaseSchema {
 
       table.string('whatsapp_business_id').nullable().unique()
       table.string('verify_token').nullable()
-      table.string('graph_version).nullable().defaultTo(null)
-      table.string('graph_url).nullable().defaultTo(null)
+      table.string('graph_version').nullable().defaultTo(null)
+      table.string('graph_url').nullable().defaultTo(null)
 
       table.timestamps()
     })

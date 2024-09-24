@@ -4,6 +4,6 @@ config: {
   apiProvider: 'msg91'
   phoneNumberId: Env.get('MSG91_PHONE_ID'),
   accessToken: Env.get('MSG91_TOKEN'),
-  graphUrl: 'https://control.msg91.com/api/',
+  graphUrl: 'https://control.msg91.com/api',
   graphVersion: 'v5',
 },
