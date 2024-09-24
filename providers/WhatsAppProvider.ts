@@ -51,7 +51,7 @@ export default class WhatsAppProvider {
         const { phoneNumberId } = ctx.request.params()
         let verifyToken: string | undefined | null = null
 
-        if (whatsapp.provider === 'db') {
+        if (whatsapp.provider === 'lucid') {
           verifyToken = await this.getVerifyTokenFromDb(phoneNumberId, whatsapp)
         } else {
           verifyToken = whatsapp.config!.verifyToken
