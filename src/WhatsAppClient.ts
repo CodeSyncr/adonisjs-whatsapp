@@ -76,6 +76,7 @@ export default class WhatsAppClient {
         phoneNumberId = waResponse.phone_number_id
         apiProvider = waResponse.api_provider
         graphVersion = waResponse.graph_version ?? graphVersion
+        graphUrl = waResponse.graph_url ?? graphUrl
         headers = this.getHeaders(apiProvider!, waResponse.access_token)
       } else {
         throw new Error('Incorrect Phone Number ID')
